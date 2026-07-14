@@ -1,0 +1,14 @@
+# Local secrets
+.env
+.env.*
+
+# Build and runtime artifacts
+tmp/
+api
+
+# Python virtual envs
+.venv/
+.venv-1/
+
+# OS/editor junk
+.DS_Store

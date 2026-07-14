@@ -1,0 +1,108 @@
+Kelompok;Status Akun;Level Akun;Kode Akun;Nama Akun;(Sisi) Saldo Normal;Catatan
+Aset;Header;1;1-1000;Aset Lancar;Debit;
+Aset;Header;2;1-1100;Kas dan Setara Kas;Debit;
+Aset;Detail;3;1-1110;Kas;Debit;Aset lancar berupa uang tunai baik kertas maupun logam
+Aset;Header;3;1-1200;Setara Kas;Debit;Setara Kas adalah aset yang hampir sama seperti uang tunai dan bisa langsung dipakai kapan saja untuk keperluan transaksi BUMDes, tanpa harus dijual dulu atau menunggu lama. Contohnya seperti saldo di rekening bank BUMDes atau deposito jangka pendek yang bisa dicairkan sewaktu-waktu tanpa potongan besar.
+Aset;Detail;4;1-1210;Bank BRI;Debit;Setara Kas adalah aset yang hampir sama seperti uang tunai dan bisa langsung dipakai kapan saja untuk keperluan transaksi BUMDes, tanpa harus dijual dulu atau menunggu lama. Contohnya seperti saldo di rekening bank BUMDes atau deposito jangka pendek yang bisa dicairkan sewaktu-waktu tanpa potongan besar.
+Aset;Detail;4;1-1211;Bank Jatim;Debit;Setara Kas adalah aset yang hampir sama seperti uang tunai dan bisa langsung dipakai kapan saja untuk keperluan transaksi BUMDes, tanpa harus dijual dulu atau menunggu lama. Contohnya seperti saldo di rekening bank BUMDes atau deposito jangka pendek yang bisa dicairkan sewaktu-waktu tanpa potongan besar.
+Aset;Detail;4;1-1212;Bank Mandiri;Debit;Setara Kas adalah aset yang hampir sama seperti uang tunai dan bisa langsung dipakai kapan saja untuk keperluan transaksi BUMDes, tanpa harus dijual dulu atau menunggu lama. Contohnya seperti saldo di rekening bank BUMDes atau deposito jangka pendek yang bisa dicairkan sewaktu-waktu tanpa potongan besar.
+Aset;Detail;3;1-1310;Piutang;Debit;Tagihan kepada pihak lain
+Aset;Detail;3;1-1311;Penyisihan Piutang;Kredit;Estimasi piutang tak tertagih
+Aset;Detail;3;1-1410;Pembayaran Dimuka;Debit;Pembayaran untuk jasa atau barang yang belum diterima
+Aset;Detail;3;1-1510;Perlengkapan;Debit;Aset lancar berupa barang habis pakai
+Aset;Detail;3;1-1610;Persediaan;Debit;Barang tersedia untuk dijual atau digunakan
+Aset;Detail;3;1-1710;Aset lancar lainnya;Debit;Aset lancar selain kas, piutang, dan persediaan
+Aset;Detail;3;1-1810;RK Unit Usaha;Debit;Rencana kerja unit usaha
+Aset;Detail;3;1-1910;Investasi;Debit;Penanaman modal jangka panjang
+Aset;Header;1;1-2000;Aset Tetap;Debit;Aset berumur panjang seperti gedung dan kendaraan
+Aset;Detail;2;1-2010;Gedung dan Bangunan;Debit;Bangunan milik BUMDes
+Aset;Detail;2;1-2011;Kendaraan;Debit;Mobil, motor, atau alat transportasi lain
+Aset;Detail;2;1-2012;Meubelair;Debit;Furnitur dan peralatan kantor
+Aset;Detail;2;1-2013;Tanah;Debit;Aset berupa lahan
+Aset;Detail;2;1-2014;Peralatan dan Mesin;Debit;Aset tetap berupa alat dan mesin
+Aset;Detail;2;1-2015;Kontruksi Dalam Pengerjaan;Debit;Proyek aset tetap yang belum selesai
+Aset;Detail;2;1-2016;Akumulasi Penyusutan Aset Tetap;Kredit;Penyesuaian nilai aset tetap
+Aset;Detail;2;1-2017;Aset Tetap Lainnya;Debit;Aset tetap selain tanah, bangunan, dan peralatan
+Aset;Detail;2;1-2018;Aset Tak berwujud;Debit;Hak paten, goodwill, lisensi
+Aset;Detail;2;1-2019;Amortisasi Aset Takberwujud;Kredit;Penyesuaian nilai aset takberwujud
+Aset;Detail;2;1-2020;Aset Lain-lain;Debit;Aset yang tidak termasuk kategori
+Aset;Detail;2;1-2021;Akumulasi Penyusutan Aset Lain-lain;Kredit;Penyusutan Aset Lain-lain
+Kewajiban;Header;1;2-0000;Kewajiban Jangka Pendek;Kredit;Kewajiban jangka pendek adalah utang atau kewajiban yang harus dibayar oleh BUMDes dalam waktu kurang dari satu tahun. Contohnya seperti utang ke supplier atas pembelian barang dagangan, gaji karyawan yang belum dibayar, atau pinjaman jangka pendek dari pihak ketiga. Kewajiban ini penting dicatat agar BUMDes tahu berapa jumlah kewajiban yang harus segera diselesaikan.
+Kewajiban;Detail;2;2-0100;Utang Usaha;Kredit;Kewajiban kepada pemasok
+Kewajiban;Detail;2;2-0101;Utang Pajak;Kredit;Kewajiban pajak
+Kewajiban;Detail;2;2-0102;Utang Gaji/Upah dan Tunjangan;Kredit;Gaji yang belum dibayarkan
+Kewajiban;Detail;2;2-0103;Utang Utilitas;Kredit;Tagihan listrik, air, telepon, dll.
+Kewajiban;Detail;2;2-0104;Utang kepada Pihak Ketiga Jk. Pendek;Kredit;Pinjaman pihak ketiga ≤ 1 thn
+Kewajiban;Detail;2;2-0105;Utang Jangka Pendek Lainnya;Kredit;Utang lancar selain yang sudah disebut
+Kewajiban;Header;1;2-1000;Kewajiban Jangka Panjang;Kredit;Kewajiban jangka panjang adalah utang atau kewajiban BUMDes yang jatuh temponya lebih dari satu tahun. Contohnya seperti pinjaman dari bank atau lembaga keuangan yang harus dicicil selama beberapa tahun. Kewajiban ini biasanya digunakan untuk membiayai investasi besar, seperti pembelian alat usaha atau pembangunan fasilitas, dan harus dikelola dengan baik agar tidak membebani keuangan BUMDes di masa depan.
+Kewajiban;Detail;2;2-1100;Utang Bank;Kredit;Pinjaman dari bank
+Kewajiban;Detail;2;2-1101;Utang Kepada Pihak Ketiga Jk. Panjang;Kredit;Pinjaman pihak ketiga > 1 thn
+Kewajiban;Detail;2;2-1102;Utang Jangka Panjang Lainnya;Kredit;Utang non lancar lain
+Ekuitas;Header;1;3-0000;Ekuitas;Kredit;Ekuitas adalah bagian kepemilikan atau modal bersih BUMDes setelah dikurangi semua kewajiban. Ekuitas terdiri dari berbagai sumber, seperti Penyertaan Modal Desa, Masyarakat, dan BKK (dana awal atau tambahan dari pemerintah desa, masyarakat, dan bantuan keuangan khusus), serta Pemupukan Modal BUMDes sebagai hasil dari akumulasi investasi jangka panjang. Ada juga Penyertaan Modal Awal dan Akhir yang menunjukkan nilai modal saat mulai dan akhir periode. Laba Ditahan Awal, Laba (Rugi) Periode Berjalan, dan Laba Ditahan Akhir mencerminkan keuntungan yang disimpan dan tidak dibagikan selama beberapa tahun. Bagi Hasil dari penyertaan modal desa atau masyarakat adalah keuntungan yang dibagikan kembali kepada penyetor modal. Ekuitas Akhir menunjukkan total kepemilikan di akhir tahun buku, dan RK Pusat mengacu pada penyertaan atau kontribusi modal yang berasal dari pusat (misalnya dari pemerintah pusat melalui program tertentu).
+Ekuitas;Detail;2;3-1100;Penyertaan Modal Desa;Kredit;Modal awal dari desa
+Ekuitas;Detail;2;3-1101;Penyertaan Modal Masyarakat;Kredit;Modal dari masyarakat
+Ekuitas;Detail;2;3-1102;Penyertaan Modal dari BKK;Kredit;Modal dari bantuan kabupaten/kota
+Ekuitas;Detail;2;3-1103;Laba Ditahan;Kredit;Laba yang belum dibagikan
+Ekuitas;Detail;2;3-1104;Penyertaan Modal Awal;Kredit;Dana atau aset yang pertama kali disetor
+Ekuitas;Detail;2;3-1105;Pemupukan Modal BUM Desa;Kredit;Penambahan aset/dana ke BUM Desa
+Ekuitas;Detail;2;3-1106;Penyertaan Modal Akhir;Kredit;Dana atau aset yang terakhir kali disetor
+Ekuitas;Detail;2;3-1107;Laba Ditahan Awal;Kredit;Saldo laba tahun sebelumnya
+Ekuitas;Detail;2;3-1108;Laba (Rugi) Periode Berjalan;Kredit;Hasil operasional entitas
+Ekuitas;Detail;2;3-1109;Bagi Hasil Penyertaan Modal Desa;Kredit;Keuntungan Bum Desa yang dialokasikan kepada pemerintah desa
+Ekuitas;Detail;2;3-1110;Bagi Hasil Penyertaan Modal Masyarakat;Kredit;Keuntungan Bum Desa yang dialokasikan kepada masyarakat
+Ekuitas;Detail;2;3-1111;Laba Ditahan Akhir;Kredit;Akumulasi laba bersih
+Ekuitas;Detail;2;3-1112;Ekuitas Akhir;Kredit;Total hak milik atas aset
+Ekuitas;Detail;2;3-1113;RK Pusat;Kredit;Rekening pusat BUM Desa
+Pendapatan;Header;1;4-0000;Pendapatan Usaha;Kredit;Pendapatan Usaha adalah seluruh pemasukan yang diperoleh BUMDes dari kegiatan operasional yang dijalankan, baik dari penjualan barang maupun jasa. Komponen utamanya meliputi Pendapatan Penjualan Barang Dagangan (misalnya toko BUMDes), Pendapatan Penjualan Barang Jadi (produk olahan atau produksi sendiri), dan Pendapatan Jasa (layanan yang diberikan BUMDes). BUMDes juga bisa memperoleh Pendapatan Sewa dari penyewaan aset, Pendapatan Denda dari keterlambatan pembayaran, serta Pendapatan Lain-lain yang bersifat tidak rutin. Sumber lain yang lebih spesifik berasal dari unit usaha seperti Simpan Pinjam, Transportasi, Catering, Angkringan, Homestay, Periklanan, Pengelolaan Sampah, GOR (Gedung Olahraga), Jasa Layanan, Parkir, dan Pelatihan. Semua pendapatan ini menunjukkan seberapa besar kontribusi setiap unit terhadap total pemasukan BUMDes dan penting untuk dianalisis agar pengelolaan usaha lebih optimal.
+Pendapatan;Detail;2;4-1000;Pendapatan Penjualan Barang Dagangan;Kredit;Penjualan produk atau barang
+Pendapatan;Detail;2;4-1001;Pendapatan Jasa;Kredit;Pendapatan dari layanan
+Pendapatan;Detail;2;4-1002;Pendapatan Lain-lain;Kredit;Pendapatan selain utama
+Pendapatan;Detail;2;4-1003;Pendapatan Denda;Kredit;Pendapatan dari penalti keterlambatan
+Pendapatan;Detail;2;4-1004;Pendapatan Sewa;Kredit;Pendapatan dari penyewaan fasilitas
+Pendapatan;Detail;2;4-1005;Pendapatan Simpan Pinjam;Kredit;Pendapatan bunga dari simpan pinjam
+Pendapatan;Detail;2;4-1006;Pendapatan Transportasi;Kredit;Pendapatan dari unit transportasi
+Pendapatan;Detail;2;4-1007;Pendapatan Catering;Kredit;Pendapatan dari usaha katering
+Pendapatan;Detail;2;4-1008;Pendapatan Angkringan;Kredit;Pendapatan dari usaha angkringan
+Pendapatan;Detail;2;4-1009;Pendapatan Homestay;Kredit;Pendapatan dari penyewaan penginapan
+Pendapatan;Detail;2;4-1010;Pendapatan Perikanan;Kredit;Pendapatan dari penjualan hasil perikanan
+Pendapatan;Detail;2;4-1011;Pendapatan Pengelolaan Sampah;Kredit;Pendapatan dari pengelolaan sampah
+Pendapatan;Detail;2;4-1012;Pendapatan GOR;Kredit;Pendapatan GOR dari segala kegiatan
+Pendapatan;Detail;2;4-1013;Pendapatan Jasa Layanan;Kredit;Pendapatan diperoleh sebagai penyedia layanan jasa
+Pendapatan;Detail;2;4-1014;Pendapatan Parkir;Kredit;Pendapatan diperoleh dari parkir
+Pendapatan;Detail;2;4-1015;Pendapatan Pelatihan;Kredit;Pendapatan diperoleh dari penyelenggaraan pelatihan
+Pendapatan;Detail;2;4-1016;Pendapatan Penjualan Barang Jadi;Kredit;Pendapatan dari penjualan barang yang selesai diproduksi
+Pendapatan;Detail;2;4-1017;Pendapatan Periklanan;Kredit;Pendapatan dari pengiklanan atau promosi
+Pendapatan;Header;2;4-2000;Pendapatan Lain-lain;Kredit;Pendapatan Usaha adalah seluruh pemasukan yang diperoleh BUMDes dari kegiatan operasional yang dijalankan, baik dari penjualan barang maupun jasa. Komponen utamanya meliputi Pendapatan Penjualan Barang Dagangan (misalnya toko BUMDes), Pendapatan Penjualan Barang Jadi (produk olahan atau produksi sendiri), dan Pendapatan Jasa (layanan yang diberikan BUMDes). BUMDes juga bisa memperoleh Pendapatan Sewa dari penyewaan aset, Pendapatan Denda dari keterlambatan pembayaran, serta Pendapatan Lain-lain yang bersifat tidak rutin. Sumber lain yang lebih spesifik berasal dari unit usaha seperti Simpan Pinjam, Transportasi, Catering, Angkringan, Homestay, Periklanan, Pengelolaan Sampah, GOR (Gedung Olahraga), Jasa Layanan, Parkir, dan Pelatihan. Semua pendapatan ini menunjukkan seberapa besar kontribusi setiap unit terhadap total pemasukan BUMDes dan penting untuk dianalisis agar pengelolaan usaha lebih optimal.
+Pendapatan;Detail;3;4-2100;Pendapatan dari Bank;Kredit;Penghasilan yang diterima melibatkan bank
+Pendapatan;Detail;3;4-2101;Pendapatan Deviden;Kredit;Penghasilan dari kepemilikan saham
+Pendapatan;Detail;3;4-2102;Pendapatan Iklan;Kredit;Pendapatan dari penayangan iklan pihak lain di platform kita
+Pendapatan;Detail;3;4-2103;Pendapatan Penjualan Aset Tetap;Kredit;Keuntungan dari menjual aset jangka panjang
+Pendapatan;Detail;3;840150;Laba penjualan Aset tetap;Kredit;Penghasilan yang timbul dari penjualan aset tetap ketika harga jual lebih besar dari nilai tercatatnya.
+Beban;Header;1;5-0000;Harga Pokok Penjualan;Debit;Beban usaha adalah seluruh pengeluaran yang dikeluarkan BUMDes untuk menjalankan kegiatan operasionalnya. Beban ini mencakup Harga Pokok Penjualan (HPP), baik untuk barang dagangan maupun barang jadi, yang merupakan biaya langsung dari produk yang dijual. Selain itu, ada Beban Pegawai, termasuk gaji untuk staf administrasi dan pemasaran, serta Beban Administrasi dan Umum, seperti perlengkapan kantor dan operasional harian. BUMDes juga menanggung Beban Pajak, Penyusutan, Pemasaran, Utilitas (listrik, air), Pemeliharaan, Sewa dan Asuransi, Kebersihan, dan Keamanan. Pengeluaran lain termasuk Beban Bank, Bunga, Denda, serta Beban Penjualan Aset Tetap jika terjadi penjualan aset. Semua beban ini harus dicatat agar BUMDes dapat mengetahui berapa biaya yang dikeluarkan dan menghitung keuntungan dengan tepat.
+Beban;Detail;2;5-1000;Harga Pokok Penjualan;Debit;Biaya langsung dari barang atau jasa
+Beban;Detail;2;5-1001;Harga Pokok Penjualan Barang Dagangan;Debit;Biaya langsung untuk mendapatkan barang yang dijual
+Beban;Detail;2;5-1002;Harga Pokok Penjualan Barang Jadi;Debit;Biaya yang dikeluarkan untuk memproduksi barang
+Beban;Header;1;5-2000;Beban - Beban;Debit;Beban usaha adalah seluruh pengeluaran yang dikeluarkan BUMDes untuk menjalankan kegiatan operasionalnya. Semua beban ini harus dicatat agar BUMDes dapat mengetahui berapa biaya yang dikeluarkan dan menghitung keuntungan dengan tepat.
+Beban;Detail;2;5-2100;Beban Pegawai;Debit;Gaji, tunjangan dan honor
+Beban;Detail;2;5-2101;Beban Administrasi dan Umum;Debit;Biaya operasional umum
+Beban;Detail;2;5-2102;Beban Operasional;Debit;Listrik, air, perbaikan
+Beban;Detail;2;5-2103;Beban Pajak;Debit;Beban atas kewajiban pajak
+Beban;Detail;2;5-2104;Beban Penyusutan;Debit;Alokasi penurunan nilai aset
+Beban;Detail;2;5-2105;Beban Pemasaran;Debit;Biaya promosi dan distribusi
+Beban;Detail;2;5-2106;Beban Utilitas;Debit;Listrik, air, telepon
+Beban;Detail;2;5-2107;Beban Pemeliharaan dan Perbaikan;Debit;Biaya untuk merawat aset tetap
+Beban;Detail;2;5-2108;Beban Pegawai Bagian Administrasi Umum;Debit;Gaji, tunjangan dan honor untuk pegawai administrasi umum
+Beban;Detail;2;5-2109;Beban Perlengkapan;Debit;Nilai perlengkapan yang sudah habis terpakai
+Beban;Detail;2;5-2110;Beban Sewa dan Asuransi;Debit;Biaya untuk menggunakan properti (sewa)
+Beban;Detail;2;5-2111;Beban Kebersihan dan Keamanan;Debit;Biaya untuk kebersihan dan keamanan
+Beban;Detail;2;5-2112;Beban Keamanan;Debit;Biaya dikeluarkan untuk keamanan aset, karyawan/operasionalnya
+Beban;Detail;2;5-2113;Beban Operasional Lain;Debit;Biaya yang timbul dari kegiatan operasional utama
+Beban;Detail;2;5-2114;Beban Pegawai Bagian Pemasaran;Debit;Biaya yang dikeluarkan untuk menggaji atau memberi imbalan
+Beban;Detail;2;5-2115;Beban Iklan dan Promosi;Debit;Biaya untuk kegiatan iklan dan promosi
+Beban;Detail;2;5-2116;Beban Pemasaran Lainnya;Debit;Biaya untuk mempromosikan dan menjual produk
+Beban;Header;2;5-3000;Beban lain - lain;Debit;Beban usaha adalah seluruh pengeluaran yang dikeluarkan BUMDes untuk menjalankan kegiatan operasionalnya. Semua beban ini harus dicatat agar BUMDes dapat mengetahui berapa biaya yang dikeluarkan dan menghitung keuntungan dengan tepat.
+Beban;Detail;3;5-3100;Beban Bank;Debit;Biaya yang dikenakan oleh bank
+Beban;Detail;3;5-3101;Beban Bunga;Debit;Biaya atas penggunaan dana pinjaman (utang)
+Beban;Detail;3;5-3102;Beban Denda;Debit;Biaya yang timbul karena melanggar suatu peraturan
+Beban;Detail;3;5-3103;Beban Penjualan Aset Tetap;Debit;Biaya yang timbul dalam proses penjualan aset jangka panjang
+Beban;Detail;3;439874;Rugi Penjualan Aset Tetap;Debit;Kerugian dari penjualan aset tetap di bawah nilai buku

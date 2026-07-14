@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiBumdes - Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/styles.css?v=14">
+    <style>
+        @keyframes transaksiAiProgress {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container" style="display: none; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, #eef6f0 0%, #dbebdc 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; position: fixed; top: 0; left: 0;">
+        <div style="background: var(--surface); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); width: 100%; max-width: 400px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="background: var(--primary-light); width: 48px; height: 48px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary-dark); margin-bottom: 16px;">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h2 style="color: var(--text-primary); font-weight: 600;">Log in ke SiBumdes</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">Masukkan identitas pengguna sistem Anda.</p>
+            </div>
+            
+            <form id="authLoginForm" method="post" action="/api/login">
+                <div class="form-group full-width" style="margin-bottom: 16px;">
+                    <label for="login_username" style="font-weight: 500;">Nama Pengguna</label>
+                    <input type="text" id="login_username" name="username" placeholder="Masukkan nama terdaftar" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                </div>
+                
+                <div class="form-group full-width" style="margin-bottom: 24px;">
+                    <label for="login_password" style="font-weight: 500;">Kata Sandi</label>
+                    <input type="password" id="login_password" name="password" placeholder="Masukkan kata sandi" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                </div>
+                
+                <button type="submit" class="primary-btn" style="width: 100%; justify-content: center; padding: 12px; font-weight: 600; font-size: 1rem;">Masuk Dashboard <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard-container" id="dashboard-app-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h2>sibumdes</h2>
+                </div>
+            </div>
+
+            <div class="workspace-selector">
+                <div class="ws-icon"><i class="fa-solid fa-lock"></i></div>
+                <div class="ws-info">
+                    <h4>My Workspace</h4>
+                    <p>Free plan</p>
+                </div>
+                <i class="fa-solid fa-chevron-down ws-arrow"></i>
+            </div>
+
+            <div class="sidebar-menu-container">
+                <ul class="sidebar-menu">
+                    <li class="menu-item active">
+                        <a href="/dashboard" id="menu-dashboard-btn" data-link><i class="fa-solid fa-chart-pie"></i><span>Dashboard</span></a>
+                    </li>
+                    
+                    <li class="menu-item has-submenu">
+                        <a href="#"><i class="fa-solid fa-gear"></i><span>Setting & Preferensi</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                        <ul class="submenu">
+                            <li><a href="/pengaturan" id="menu-pengaturan-btn" data-link>Pengaturan</a></li>
+                            <li><a href="/profiles" id="menu-profile-btn" data-link>Profile BUMDes</a></li>
+                            <li><a href="/users" data-link id="menu-user-btn">Setting User & Hak Akses</a></li>
+                            <li><a href="/pelanggan" data-link id="menu-pelanggan-btn">Master Data - Pelanggan</a></li>
+                            <li><a href="/supplier" data-link id="menu-supplier-btn">Master Data - Supplier</a></li>
+                            <li><a href="/barang" data-link id="menu-barang-btn">Master Data - Barang</a></li>
+                            <li><a href="/inventaris" data-link id="menu-inventaris-btn">Master Data - Inventaris</a></li>
+                            <li><a href="/coa" data-link id="menu-coa-btn">Bagan Akun (CoA)</a></li>
+                            <li><a href="/mapping-transaksi" data-link id="menu-mapping-transaksi-btn">Mapping Transaksi - Transaksi Harian</a></li>
+                            <li><a href="/mapping-transaksi/non-rutin" data-link id="menu-mapping-transaksi-nonrutin-btn">Mapping Transaksi - Transaksi Non Rutin</a></li>
+                            <li><a href="/mapping-transaksi/umum" data-link id="menu-mapping-transaksi-umum-btn">Mapping Transaksi - Transaksi Lainnya</a></li>
+                            <li><a href="/mapping-transaksi/jurnal" data-link id="menu-mapping-transaksi-jurnal-btn">Mapping Transaksi - Jurnal</a></li>
+                            <li class="divider"></li>
+                            <li class="has-submenu submenu-item">
+                                <a href="#"><span>Buka Periode & Saldo Awal</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                                <ul class="submenu nested-submenu">
+                                    <li><a href="/buka-periode" data-link id="menu-buka-periode-btn">Buka Periode</a></li>
+                                    <li><a href="/saldo-awal" data-link id="menu-saldo-awal-btn">Saldo Awal</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#">Tutup Periode</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-submenu">
+                        <a href="#" id="menu-transaksi-parent-btn"><i class="fa-solid fa-wallet"></i><span>Transaksi</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                        <ul class="submenu">
+                            <li><a href="/transaksi" id="menu-transaksi-btn" data-link>Transaksi</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-submenu">
+                        <a href="#"><i class="fa-solid fa-scale-balanced"></i><span>Siklus Akuntansi</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                        <ul class="submenu">
+                            <li class="has-submenu submenu-item">
+                                <a href="#" id="menu-jurnal-parent-btn"><span>Jurnal (Rekapitulasi)</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                                <ul class="submenu nested-submenu">
+                                    <li><a href="/jurnal" data-link id="menu-jurnal-btn">Jurnal</a></li>
+                                    <li><a href="/jurnal-rekapitulasi" data-link id="menu-jurnal-rekap-btn">Rekapitulasi</a></li>
+                                </ul>
+                            </li>
+                            <li class="has-submenu submenu-item">
+                                <a href="#" id="menu-buku-besar-parent-btn"><span>Buku Besar</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                                <ul class="submenu nested-submenu">
+                                    <li><a href="/histori-akun" data-link id="menu-histori-akun-btn">Histori Akun</a></li>
+                                </ul>
+                            </li>
+                            <li class="has-submenu submenu-item">
+                                <a href="#" id="menu-buku-pembantu-parent-btn"><span>Buku Pembantu</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                                <ul class="submenu nested-submenu">
+                                    <li><a href="/bp-utang" id="menu-bp-utang-btn" data-link>BP Utang</a></li>
+                                    <li><a href="/bp-piutang" id="menu-bp-piutang-btn" data-link>BP Piutang</a></li>
+                                    <li><a href="/kartu-persediaan" id="menu-kartu-persediaan-btn" data-link>Kartu Persediaan</a></li>
+                                    <li><a href="/kartu-aset-tetap" id="menu-kartu-aset-tetap-btn" data-link>Kartu Aset Tetap</a></li>
+                                </ul>
+                            </li>
+                            <li class="divider"></li>
+                            <li class="has-submenu submenu-item">
+                                <a href="#" id="menu-jurnal-penyesuaian-parent-btn"><span>Jurnal Penyesuaian</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                                <ul class="submenu nested-submenu">
+                                    <li><a href="/jurnal-penyesuaian" data-link id="menu-jurnal-penyesuaian-btn">Jurnal Penyesuaian</a></li>
+                                    <li><a href="/jurnal-penyesuaian/rekapitulasi-jurnal" data-link id="menu-jurnal-penyesuaian-rekap-btn">Rekapitulasi Jurnal</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="/neraca-saldo-setelah-penyesuaian" data-link id="menu-neraca-saldo-setelah-penyesuaian-btn">Neraca Saldo Setelah Penyesuaian</a></li>
+                            <li><a href="/laporan-laba-rugi" data-link id="menu-laporan-laba-rugi-btn">Laporan Laba Rugi</a></li>
+                            <li><a href="/laporan-perubahan-modal" data-link id="menu-laporan-perubahan-modal-btn">Laporan Perubahan Modal</a></li>
+                            <li><a href="/laporan-penyertaan-modal" data-link id="menu-laporan-penyertaan-modal-btn">Laporan Penyertaan Modal</a></li>
+                            <li><a href="/posisi-keuangan-neraca" data-link id="menu-posisi-keuangan-neraca-btn">Posisi Keuangan / Neraca</a></li>
+                            <li><a href="/laporan-arus-kas" data-link id="menu-laporan-arus-kas-btn">Laporan Arus Kas</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item has-submenu">
+                        <a href="#"><i class="fa-solid fa-file-invoice-dollar"></i><span>Laporan Keuangan</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                        <ul class="submenu">
+                            <li><a href="#">Laporan Laba Rugi</a></li>
+                            <li><a href="#">Laporan Perubahan Modal</a></li>
+                            <li><a href="#">Laporan Penyertaan Modal</a></li>
+                            <li><a href="#">Posisi Keuangan / Neraca</a></li>
+                            <li><a href="#">Laporan Arus Kas</a></li>
+                            <li><a href="#">Analisa Rasio Keuangan</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item">
+                        <a href="/inventaris" data-link id="menu-inventaris-main-btn"><i class="fa-solid fa-boxes-stacked"></i><span>Inventaris (Aset Tetap)</span></a>
+                    </li>
+
+                    <li class="menu-item">
+                        <a href="/barang-jasa" data-link id="menu-barang-jasa-btn"><i class="fa-solid fa-box-open"></i><span>Barang & Jasa</span></a>
+                    </li>
+
+                    <li class="menu-item has-submenu ai-menu">
+                        <a href="#"><i class="fa-solid fa-brain"></i><span>Analisis Berbantuan AI</span><i class="fa-solid fa-chevron-right chevron"></i></a>
+                        <ul class="submenu">
+                            <li><a href="#">Laporan Tahunan</a></li>
+                            <li><a href="#">Analisa Kelayakan Usaha</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-item desk-help">
+                        <a href="/desk-help" data-link id="menu-desk-help-btn"><i class="fa-solid fa-headset"></i><span>Desk Help</span></a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0a4f3b&color=fff" alt="User Avatar">
+                    <div class="user-details">
+                        <h4 id="auth-display-name">Guest</h4>
+                    </div>
+                </div>
+                <button id="btn-logout" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; margin-left: auto;" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <button id="toggle-sidebar" class="toggle-btn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 id="page-title" style="display:none;">Dashboard Overview</h2>
+                </div>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="top-header-search-input" placeholder="Search">
+                    </div>
+                    <button class="action-btn" style="background:#fff; border:1px solid var(--border); margin-right:8px;"><i class="fa-solid fa-gift" style="color:var(--text-secondary); font-size: 0.9rem;"></i></button>
+                    <button class="notification-btn" style="margin-right:16px;">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                    <div class="user-profile-header" style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+                        <img id="header-user-avatar" src="" alt="User Avatar" style="width:36px; height:36px; border-radius:12px;">
+                        <div class="u-info" style="line-height:1.2;">
+                            <span id="header-user-name" style="font-size:0.85rem; font-weight:600; display:block;">Memuat...</span>
+                            <span id="header-user-role" style="font-size:0.75rem; color:var(--text-secondary);">Role Aktif</span>
+                        </div>
+                        <button class="logout-action-btn" style="margin-left: 8px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: var(--radius-sm); padding: 8px 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-power-off"></i> Keluar
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- View: Dashboard -->
+                <div id="dashboard-view">
+                    <!-- Dashboard Header -->
+                    <div class="dash-header">
+                        <div class="dash-title">
+                            <h1>Dashboard</h1>
+                            <p>Welcome, Let's dive into your personalized setup guide.</p>
+                        </div>
+                        <button class="primary-btn dark-btn"><i class="fa-solid fa-plus"></i> Create campaigns</button>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <span class="stat-label">Pendapatan</span>
+                            <div class="stat-value">42,642.1 <span class="trend positive">+0.02% <i class="fa-solid fa-caret-up"></i></span></div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Pengeluaran</span>
+                            <div class="stat-value">26,843 <span class="trend negative">-0.02% <i class="fa-solid fa-caret-down"></i></span></div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Total Aset</span>
+                            <div class="stat-value">525,753 <span class="trend positive">+0.02% <i class="fa-solid fa-caret-up"></i></span></div>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Subscribe</span>
+                            <div class="stat-value">425 <span class="trend positive">+0.02% <i class="fa-solid fa-caret-up"></i></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Chart Widget Fake -->
+                        <div class="widget chart-widget">
+                            <div class="widget-header">
+                                <h3>Campaign Performance</h3>
+                                <div class="widget-actions">
+                                    <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> 12% vs last month</span>
+                                </div>
+                            </div>
+                            <div class="widget-body">
+                                <h2 style="font-size:1.8rem; font-weight:700; margin-bottom:4px;">$24,747.01</h2>
+                                <p style="color:var(--text-secondary); font-size:0.9rem;">29 Sept, 2024</p>
+                                <div class="mock-chart">
+                                    <div class="bar" style="height: 34%;"><span class="label">Jan</span></div>
+                                    <div class="bar active" style="height: 67%;"><span class="label">Feb</span></div>
+                                    <div class="bar" style="height: 28%;"><span class="label">Mar</span></div>
+                                    <div class="bar" style="height: 39%;"><span class="label">Apr</span></div>
+                                    <div class="bar" style="height: 80%;"><span class="label">May</span></div>
+                                    <div class="bar" style="height: 45%;"><span class="label">Jun</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Agenda Widget Fake -->
+                        <div class="widget agenda-widget">
+                            <div class="widget-header">
+                                <h3>Schedule Campaign</h3>
+                                <div class="calendar-nav" style="display:flex; gap:8px;">
+                                    <button class="action-btn" style="border:1px solid var(--border);"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <button class="action-btn" style="border:1px solid var(--border);"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="widget-body">
+                                <span style="font-size:0.9rem; font-weight:600; display:block; margin-bottom:16px;">September 2024</span>
+                                <div class="mock-calendar">
+                                    <div class="cal-days">
+                                        <span>Mon<br>15</span>
+                                        <span>Tue<br>16</span>
+                                        <span>Wed<br>17</span>
+                                        <span>Thu<br>18</span>
+                                        <span class="active">Fri<br>19</span>
+                                        <span>Sat<br>20</span>
+                                        <span>Sun<br>21</span>
+                                    </div>
+                                    <span style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px;">Today</span>
+                                    <div class="cal-events">
+                                        <div class="event-item yellow">
+                                            <div class="e-icon"><i class="fa-solid fa-shapes"></i></div>
+                                            <div class="e-details">
+                                                <h4>Element of Design Test</h4>
+                                                <p>10:00 - 11:00 AM</p>
+                                            </div>
+                                        </div>
+                                        <span style="font-size:0.75rem; color:var(--text-secondary); margin-top:8px;">Sat, Jan 20</span>
+                                        <div class="event-item pink">
+                                            <div class="e-icon"><i class="fa-solid fa-bolt"></i></div>
+                                            <div class="e-details">
+                                                <h4>Design Principle Test</h4>
+                                                <p>10:00 - 11:00 AM</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Profile Data Table -->
+                <div id="profile-data-view" style="display: none;">
+                    <div class="widget form-widget">
+                        <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fa-solid fa-list-check"></i> Data Profil BUMDes</h3>
+                            <button id="btn-add-profile" class="primary-btn"><i class="fa-solid fa-plus"></i> Tambah Profil</button>
+                        </div>
+                        <div class="widget-body" style="padding: 32px;" id="profile-table-container">
+                            <!-- Table injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Profile Form -->
+                <div id="profile-view" style="display: none;">
+                    <div class="widget form-widget">
+                        <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fa-solid fa-building"></i> Profil BUMDes & Unit Usaha</h3>
+                            <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/profiles')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                        </div>
+                        <div class="widget-body" style="padding: 32px;">
+                            <form id="profileForm" enctype="multipart/form-data">
+                                <input type="hidden" name="id" id="profile_id" value="">
+                                <input type="hidden" name="slug" id="profile_slug" value="">
+                                <h4 class="section-title">Informasi Utama</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Nama BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="nama_bumdes" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nomor Telepon <span class="req">*</span></label>
+                                        <input type="text" name="nomor_telepon" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Alamat Lengkap <span class="req">*</span></label>
+                                        <input type="text" name="alamat_lengkap" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nomor Izin Usaha <span class="req">*</span></label>
+                                        <input type="text" name="nomor_izin_usaha" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Logo (Upload JPG/PNG)</label>
+                                        <input type="file" name="logo" id="logo_input" accept="image/jpeg, image/png">
+                                        <div id="logo_preview_container" style="display:none; margin-top:10px;">
+                                            <img id="logo_preview" src="" style="max-height:80px; border-radius:var(--radius-sm); border:1px solid var(--border); box-shadow:var(--shadow-sm);" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Visi <span class="req">*</span></label>
+                                        <div class="rich-text-editor" data-field="visi">
+                                            <div class="rich-text-toolbar" aria-label="Toolbox editor visi">
+                                                <button type="button" class="rich-text-btn" data-command="bold" title="Tebal"><i class="fa-solid fa-bold"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="italic" title="Miring"><i class="fa-solid fa-italic"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="underline" title="Garis bawah"><i class="fa-solid fa-underline"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="insertUnorderedList" title="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="insertOrderedList" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="createLink" title="Tautan"><i class="fa-solid fa-link"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="removeFormat" title="Hapus format"><i class="fa-solid fa-eraser"></i></button>
+                                            </div>
+                                            <div class="rich-text-input" contenteditable="true" data-placeholder="Tulis visi dengan format yang rapi dan mudah dibaca."></div>
+                                            <textarea name="visi" rows="6" hidden></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Misi <span class="req">*</span></label>
+                                        <div class="rich-text-editor" data-field="misi">
+                                            <div class="rich-text-toolbar" aria-label="Toolbox editor misi">
+                                                <button type="button" class="rich-text-btn" data-command="bold" title="Tebal"><i class="fa-solid fa-bold"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="italic" title="Miring"><i class="fa-solid fa-italic"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="underline" title="Garis bawah"><i class="fa-solid fa-underline"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="insertUnorderedList" title="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="insertOrderedList" title="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="createLink" title="Tautan"><i class="fa-solid fa-link"></i></button>
+                                                <button type="button" class="rich-text-btn" data-command="removeFormat" title="Hapus format"><i class="fa-solid fa-eraser"></i></button>
+                                            </div>
+                                            <div class="rich-text-input" contenteditable="true" data-placeholder="Tulis misi dan gunakan toolbox untuk format bullet, nomor, tautan, atau penekanan teks."></div>
+                                            <textarea name="misi" rows="7" hidden></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="section-title mt-4">Struktur Organisasi BUMDes</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Nama Ketua BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="nama_ketua_bumdes" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Sekretaris BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="sekretaris_bumdes" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Bendahara BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="bendahara_bumdes" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Pendamping BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="pendamping_bumdes" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Pengawas BUMDes <span class="req">*</span></label>
+                                        <input type="text" name="pengawas_bumdes" required>
+                                    </div>
+                                </div>
+
+                                <h4 class="section-title mt-4">Priode Pembukuan</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Tanggal Awal Pembukuan <span class="req">*</span></label>
+                                        <input type="date" name="tanggal_awal_pembukuan" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tanggal Akhir Pembukuan <span class="req">*</span></label>
+                                        <input type="date" name="tanggal_akhir_pembukuan" required>
+                                    </div>
+                                </div>
+
+                                <h4 class="section-title mt-4" style="display:flex; justify-content:space-between; align-items:center;">
+                                    Unit Usaha Utama
+                                    <button type="button" id="btn-add-unit" class="primary-btn" style="font-size:0.75rem; padding: 6px 12px;"><i class="fa-solid fa-plus"></i> Tambah Unit Usaha</button>
+                                </h4>
+                                <div id="unit-usaha-list">
+                                    <div class="form-grid unit-usaha-item" style="position:relative; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
+                                        <div class="form-group">
+                                            <label>Nama Unit Usaha <span class="req">*</span></label>
+                                            <input type="text" name="nama_unit_usaha[]" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Bidang Usaha</label>
+                                            <input type="text" name="bidang_usaha[]">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Penanggung Jawab <span class="req">*</span></label>
+                                            <input type="text" name="penanggung_jawab[]" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mata Uang</label>
+                                            <input type="text" name="mata_uang[]" value="Rp" readonly style="background-color:#eee;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tanggal Daftar <span class="req">*</span></label>
+                                            <input type="date" name="tanggal_daftar[]" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                            <input type="text" name="status_unit[]" value="Aktif">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions mt-4">
+                                    <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan Profil</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View: Pengaturan -->
+                <div id="settings-view" style="display: none;">
+                    <div class="widget form-widget">
+                        <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3><i class="fa-solid fa-sliders"></i> Pengaturan Sistem</h3>
+                        </div>
+                        <div class="widget-body" style="padding: 32px;">
+                            <form id="settingsForm">
+                                <div class="form-group full-width">
+                                    <label>GEMINI_API_KEY <span class="req">*</span></label>
+                                    <input type="password" id="gemini_api_key" name="gemini_api_key" required placeholder="Masukkan API key Gemini">
+                                    <small id="gemini_key_hint" style="display:block; margin-top:8px; color:var(--text-secondary);">Key saat ini: belum dimuat</small>
+                                </div>
+
+                                <div class="form-actions mt-4">
+                                    <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan & Restart Service</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            
+            <!-- Roles Data View -->
+            <div id="roles-data-view" style="display: none;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-shield"></i> Daftar Hak Akses Sistem</h3>
+                        <button class="primary-btn" id="btn-add-role"><i class="fa-solid fa-plus"></i> Tambah Peran</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;" id="role-table-container"></div>
+                </div>
+            </div>
+
+            <!-- Role Form View -->
+            <div id="roles-view" style="display: none;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-shield-halved"></i> Form Hak Akses</h3>
+                        <button class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/roles')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="roleForm">
+                            <input type="hidden" name="id" id="role_id">
+
+                            <div class="form-group mb-4" style="margin-bottom: 20px;">
+                                <label>Nama Peran <span class="req">*</span></label>
+                                <input type="text" name="nama_peran" id="nama_peran" required placeholder="Contoh: Admin BUMDes">
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label>Ketentuan / Deskripsi Hak Akses <span class="req">*</span></label>
+                                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:-6px;">Gunakan baris baru (Enter) untuk memisahkan setiap poin ketentuan.</p>
+                                <textarea name="deskripsi_hak_akses" id="deskripsi_hak_akses" rows="8" required placeholder="Contoh:&#10;Manajemen user&#10;Pengaturan periode..."></textarea>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan Peran</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Data View -->
+            <div id="users-data-view" style="display: none;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-users"></i> Daftar Pengguna Sistem</h3>
+                        <button class="primary-btn" id="btn-add-user"><i class="fa-solid fa-plus"></i> Tambah User Baru</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;" id="user-table-container"></div>
+                </div>
+            </div>
+
+            <!-- User Form View -->
+            <div id="users-view" style="display: none;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-user-shield"></i> Form User & Hak Akses</h3>
+                        <button class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/users')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="userForm">
+                            <input type="hidden" name="id" id="user_id">
+                            
+                            <h4 class="section-title">Kredensial Login</h4>
+                            <div class="form-grid" style="margin-bottom: 24px;">
+                                <div class="form-group">
+                                    <label>Nama <span class="req">*</span></label>
+                                    <input type="text" name="nama" id="user_nama" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Password <span class="req">*</span></label>
+                                    <input type="password" name="password" id="user_password" required>
+                                </div>
+                            </div>
+
+                            <h4 class="section-title">Hak Akses Sistem</h4>
+                            <div class="form-grid" style="margin-bottom: 24px;">
+                                <div class="form-group">
+                                    <label>Peran <span class="req">*</span></label>
+                                    <select name="role_id" id="user_role" required>
+                                        <option value="">-- Pilih Peran Hak Akses --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Profile BUMDes Wilayah</label>
+                                    <select name="profile_bumdes_id" id="user_profile_bumdes_id">
+                                        <option value="">-- Pengembang (Akses Global) --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h4 class="section-title">Informasi Personal</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>NIK <span class="req">*</span></label>
+                                    <input type="text" name="nik" id="user_nik" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>No HP <span class="req">*</span></label>
+                                    <input type="text" name="no_hp" id="user_nohp" required>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan Pengguna</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div>
+            </section>
+
+            <!-- Pelanggan Data View -->
+            <section id="pelanggan-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Data Pelanggan</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola master data pelanggan BUMDes.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button id="btn-download-template" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-download"></i> Download Template</button>
+                        <button id="btn-import-csv" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-upload"></i> Upload CSV</button>
+                        <input type="file" id="import-csv-input" accept=".csv" style="display: none;">
+                        <button id="btn-add-pelanggan" class="primary-btn"><i class="fa-solid fa-plus"></i> Buat Baru</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="pelanggan-table-container">
+                            <!-- Table will be injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pelanggan Form View -->
+            <section id="pelanggan-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Formulir Pelanggan</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Silakan isi rincian data pelanggan dengan lengkap.</p>
+                    </div>
+                </div>
+
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-user-tag"></i> Form Pelanggan</h3>
+                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="window.backToPelangganListAction()"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="pelangganForm">
+                            <input type="hidden" id="pelanggan_id" name="id" value="">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="kode_pelanggan">Kode Pelanggan</label>
+                                    <input type="text" id="kode_pelanggan" name="kode_pelanggan" placeholder="Otomatis diisi oleh sistem (misal: PLG-0001)" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                </div>
+                                <div class="form-group full-width" id="pelanggan_profile_bumdes_container" style="display:none;">
+                                    <label for="pelanggan_profile_bumdes_id">Profile BUMDes Wilayah</label>
+                                    <select id="pelanggan_profile_bumdes_id" name="profile_bumdes_id">
+                                        <option value="">-- Akses Global --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="pelanggan_unit_usaha_id">Unit Usaha <span class="req">*</span></label>
+                                    <select id="pelanggan_unit_usaha_id" name="unit_usaha_id" required>
+                                        <option value="">-- Pilih Unit Usaha --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="nama_pelanggan">Nama Pelanggan <span class="req">*</span></label>
+                                    <input type="text" id="nama_pelanggan" name="nama_pelanggan" placeholder="Masukkan nama pelanggan" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="alamat">Alamat</label>
+                                    <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap"></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="no_telepon">No Telepon <span class="req">*</span></label>
+                                    <input type="text" id="no_telepon" name="no_telepon" placeholder="Contoh: 08123456789" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select id="status" name="status">
+                                        <option value="Aktif">Aktif</option>
+                                        <option value="Nonaktif">Nonaktif</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="saldo_awal">Saldo Awal</label>
+                                    <input type="text" id="saldo_awal" name="saldo_awal" inputmode="numeric" placeholder="Contoh: 100000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bk_pembantu_piutang">Bk Pembantu Piutang</label>
+                                    <label style="display:flex; align-items:center; gap:10px; min-height:46px; padding:0 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:#fff;">
+                                        <input type="checkbox" id="bk_pembantu_piutang" name="bk_pembantu_piutang" value="1">
+                                        <span>Aktifkan link buku pembantu piutang</span>
+                                    </label>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="link_akun">Link Akun</label>
+                                    <div style="position:relative; width:100%;">
+                                        <input type="text" id="link_akun" name="link_akun" autocomplete="off" placeholder="Cari link akun CoA..." style="width:100%; box-sizing:border-box;">
+                                        <div id="pelanggan_link_akun_dropdown" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; width:100%; box-sizing:border-box; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 10px 24px rgba(15,23,42,0.10); z-index:30;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Supplier Data View -->
+            <section id="supplier-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Data Supplier</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola master data supplier BUMDes.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button id="btn-download-template-supplier" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-download"></i> Download Template</button>
+                        <button id="btn-import-csv-supplier" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-upload"></i> Upload CSV</button>
+                        <input type="file" id="import-csv-input-supplier" accept=".csv" style="display: none;">
+                        <button id="btn-add-supplier" class="primary-btn"><i class="fa-solid fa-plus"></i> Buat Baru</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="supplier-table-container">
+                            <!-- Table will be injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Supplier Form View -->
+            <section id="supplier-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Formulir Supplier</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Silakan isi rincian data supplier dengan lengkap.</p>
+                    </div>
+                </div>
+
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-handshake"></i> Form Supplier</h3>
+                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="window.backToSupplierListAction()"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="supplierForm">
+                            <input type="hidden" id="supplier_id" name="id" value="">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="kode_supplier">Kode Supplier</label>
+                                    <input type="text" id="kode_supplier" name="kode_supplier" placeholder="Otomatis diisi oleh sistem (misal: SUP-0001)" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                </div>
+                                <div class="form-group full-width" id="supplier_profile_bumdes_container" style="display:none;">
+                                    <label for="supplier_profile_bumdes_id">Profile BUMDes Wilayah</label>
+                                    <select id="supplier_profile_bumdes_id" name="profile_bumdes_id">
+                                        <option value="">-- Akses Global --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="supplier_unit_usaha_id">Unit Usaha <span class="req">*</span></label>
+                                    <select id="supplier_unit_usaha_id" name="unit_usaha_id" required>
+                                        <option value="">-- Pilih Unit Usaha --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="nama_supplier">Nama Supplier <span class="req">*</span></label>
+                                    <input type="text" id="nama_supplier" name="nama_supplier" placeholder="Masukkan nama supplier" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="bidang_supply">Bidang Supply</label>
+                                    <input type="text" id="bidang_supply" name="bidang_supply" placeholder="Contoh: Pakan Ternak">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="alamat_supplier">Alamat</label>
+                                    <textarea id="alamat_supplier" name="alamat" rows="3" placeholder="Masukkan alamat lengkap"></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="no_telepon_supplier">No Telepon <span class="req">*</span></label>
+                                    <input type="text" id="no_telepon_supplier" name="no_telepon" placeholder="Contoh: 08123456789" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="supplier_status">Status</label>
+                                    <select id="supplier_status" name="status">
+                                        <option value="Aktif">Aktif</option>
+                                        <option value="Nonaktif">Nonaktif</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="supplier_saldo_awal">Saldo Awal</label>
+                                    <input type="text" id="supplier_saldo_awal" name="saldo_awal" inputmode="numeric" placeholder="Contoh: 110000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="bk_pembantu_utang">Bk Pembantu Utang</label>
+                                    <label style="display:flex; align-items:center; gap:10px; min-height:46px; padding:0 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:#fff;">
+                                        <input type="checkbox" id="bk_pembantu_utang" name="bk_pembantu_utang" value="1">
+                                        <span>Aktifkan link buku pembantu utang</span>
+                                    </label>
+                                </div>
+                                <div class="form-group full-width" style="position:relative;">
+                                    <label for="supplier_link_akun">Link Akun</label>
+                                    <input type="text" id="supplier_link_akun" name="link_akun" placeholder="Cari link akun CoA..." autocomplete="off">
+                                    <div id="supplier_link_akun_dropdown" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 10px 24px rgba(15,23,42,0.10); z-index:30;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Barang Data View -->
+            <section id="barang-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Data Barang Persediaan</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola master data barang & persediaan BUMDes.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button id="btn-download-template-barang" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-download"></i> Download Template</button>
+                        <button id="btn-import-csv-barang" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-upload"></i> Upload CSV</button>
+                        <input type="file" id="import-csv-input-barang" accept=".csv" style="display: none;">
+                        <button id="btn-add-barang" class="primary-btn"><i class="fa-solid fa-plus"></i> Buat Baru</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="barang-table-container">
+                            <!-- Table will be injected here via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Barang Form View -->
+            <section id="barang-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Formulir Barang</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Silakan isi rincian data barang persediaan dengan lengkap.</p>
+                    </div>
+                </div>
+
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-box"></i> Form Barang</h3>
+                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/barang')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="barangForm">
+                            <input type="hidden" id="barang_id" name="id" value="">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="kode_barang">Kode Barang</label>
+                                    <input type="text" id="kode_barang" name="kode_barang" placeholder="Otomatis diisi oleh sistem (misal: BRG-0001)" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                </div>
+                                <div class="form-group full-width" id="barang_profile_bumdes_container" style="display:none;">
+                                    <label for="barang_profile_bumdes_id">Profile BUMDes Wilayah</label>
+                                    <select id="barang_profile_bumdes_id" name="profile_bumdes_id">
+                                        <option value="">-- Akses Global --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="barang_unit_usaha_id">Unit Usaha <span class="req">*</span></label>
+                                    <select id="barang_unit_usaha_id" name="unit_usaha_id" required>
+                                        <option value="">-- Pilih Unit Usaha --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="nama_barang">Nama Barang <span class="req">*</span></label>
+                                    <input type="text" id="nama_barang" name="nama_barang" placeholder="Masukkan nama barang" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="merk_barang">Merk Barang <span class="req">*</span></label>
+                                    <input type="text" id="merk_barang" name="merk_barang" placeholder="Masukkan merk barang" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="harga_beli_awal">Harga Beli Awal (Rp) <span class="req">*</span></label>
+                                    <input type="number" id="harga_beli_awal" name="harga_beli_awal" step="0.01" placeholder="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="harga_jual">Harga Jual (Rp) <span class="req">*</span></label>
+                                    <input type="number" id="harga_jual" name="harga_jual" step="0.01" placeholder="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="satuan">Satuan <span class="req">*</span></label>
+                                    <input type="text" id="satuan" name="satuan" placeholder="Contoh: pcs, kg, liter" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="saldo_awal_qty">Saldo Awal Qty Per 1 Januari 2026</label>
+                                    <input type="number" id="saldo_awal_qty" name="saldo_awal_qty" step="0.01" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="saldo_awal_nominal">Saldo Awal Nominal Per 1 Januari 2026</label>
+                                    <input type="text" id="saldo_awal_nominal" name="saldo_awal_nominal" inputmode="numeric" placeholder="Contoh: 100000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="barang_status">Status</label>
+                                    <select id="barang_status" name="status">
+                                        <option value="Aktif">Aktif</option>
+                                        <option value="Nonaktif">Nonaktif</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="kartu_persediaan">Kartu Persediaan</label>
+                                    <label style="display:flex; align-items:center; gap:10px; min-height:46px; padding:0 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:#fff;">
+                                        <input type="checkbox" id="kartu_persediaan" name="kartu_persediaan" value="1">
+                                        <span>Aktifkan kartu persediaan</span>
+                                    </label>
+                                </div>
+                                <div class="form-group full-width" style="position:relative;">
+                                    <label for="barang_link_akun">Link Akun</label>
+                                    <input type="text" id="barang_link_akun" name="link_akun" placeholder="Cari link akun CoA..." autocomplete="off">
+                                    <div id="barang_link_akun_dropdown" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 10px 24px rgba(15,23,42,0.10); z-index:30;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inventaris Data View -->
+                            <section id="inventaris-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                                <div class="dash-header" style="margin-bottom: 24px;">
+                                    <div>
+                                        <h2>Data Inventaris (Aset Tetap)</h2>
+                                        <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola master data aset tetap BUMDes.</p>
+                                    </div>
+                                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                        <button id="btn-download-template-inventaris" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-download"></i> Download Template</button>
+                                        <button id="btn-import-csv-inventaris" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;"><i class="fa-solid fa-upload"></i> Upload CSV</button>
+                                        <input type="file" id="import-csv-input-inventaris" accept=".csv" style="display: none;">
+                                        <button id="btn-add-inventaris" class="primary-btn"><i class="fa-solid fa-plus"></i> Buat Baru</button>
+                                    </div>
+                                </div>
+
+                                <div class="widget">
+                                    <div class="widget-body" style="padding: 24px;">
+                                        <div id="inventaris-table-container">
+                                            <!-- Table will be injected here via JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Inventaris Form View -->
+                            <section id="inventaris-view" style="display:none; animation: fadeIn 0.3s ease;">
+                                <div class="dash-header" style="margin-bottom: 24px;">
+                                    <div>
+                                        <h2 id="inventaris-form-title">Formulir Inventaris</h2>
+                                        <p style="color:var(--text-secondary); font-size:0.9rem;">Isi rincian data aset tetap BUMDes dengan lengkap.</p>
+                                    </div>
+                                </div>
+
+                                <div class="widget form-widget">
+                                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                        <h3><i class="fa-solid fa-warehouse"></i> Form Data Inventaris - Aset Tetap</h3>
+                                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/inventaris')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                                    </div>
+                                    <div class="widget-body" style="padding: 32px;">
+                                        <form id="inventarisForm">
+                                            <input type="hidden" id="inventaris_slug" name="slug" value="">
+                                            <div class="form-grid">
+                                                <div class="form-group full-width">
+                                                    <label for="kode_aset">Kode Aset</label>
+                                                    <input type="text" id="kode_aset" name="kode_aset" placeholder="Otomatis diisi oleh sistem (misal: AT-0011)" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                                </div>
+                                                <div class="form-group full-width" id="inventaris_profile_bumdes_container" style="display:none;">
+                                                    <label for="inventaris_profile_bumdes_id">Profile BUMDes Wilayah</label>
+                                                    <select id="inventaris_profile_bumdes_id" name="profile_bumdes_id">
+                                                        <option value="">-- Akses Global --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label for="inventaris_unit_usaha_id">Unit Usaha <span class="req">*</span></label>
+                                                    <select id="inventaris_unit_usaha_id" name="unit_usaha_id" required>
+                                                        <option value="">-- Pilih Unit Usaha --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label for="nama_aset">Nama Aset <span class="req">*</span></label>
+                                                    <input type="text" id="nama_aset" name="nama_aset" placeholder="Masukkan nama aset" required>
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label for="merk_aset">Merk Aset</label>
+                                                    <input type="text" id="merk_aset" name="merk_aset" placeholder="Masukkan merk / merek aset">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="inv_harga_perolehan">Harga Perolehan (Rp)</label>
+                                                    <input type="text" id="inv_harga_perolehan" name="harga_beli" inputmode="numeric" placeholder="Rp0">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_tanggal_pembelian">Tanggal Beli</label>
+                                                    <input type="date" id="inv_tanggal_pembelian" name="tanggal_pembelian">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_umur_ekonomis">Umur Ekonomis (tahun)</label>
+                                                    <input type="number" id="inv_umur_ekonomis" name="umur_ekonomis" min="0" placeholder="0">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_nilai_residu">Nilai Residu (Rp)</label>
+                                                    <input type="text" id="inv_nilai_residu" name="nilai_residu" inputmode="numeric" placeholder="Rp0">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_kategori_aset">Kategori Aset</label>
+                                                    <select id="inv_kategori_aset" name="kategori_aset">
+                                                        <option value="">-- Pilih Kategori --</option>
+                                                        <option value="Tanah">Tanah</option>
+                                                        <option value="Bangunan">Bangunan</option>
+                                                        <option value="Kendaraan">Kendaraan</option>
+                                                        <option value="Peralatan">Peralatan</option>
+                                                        <option value="Mesin">Mesin</option>
+                                                        <option value="Inventaris Kantor">Inventaris Kantor</option>
+                                                        <option value="Lainnya">Lainnya</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_saldo_awal">Saldo Awal Per 1 Januari 2026 (Rp)</label>
+                                                    <input type="text" id="inv_saldo_awal" name="saldo_awal" inputmode="numeric" placeholder="Rp0">
+                                                </div>
+                                                <div class="form-group" style="position:relative;">
+                                                    <label for="inv_link_akun_aset_tetap">Link Akun Aset Tetap</label>
+                                                    <input type="text" id="inv_link_akun_aset_tetap" name="link_akun_aset_tetap" placeholder="Cari link akun CoA..." autocomplete="off">
+                                                    <div id="inv_link_akun_aset_tetap_dropdown" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 10px 24px rgba(15,23,42,0.10); z-index:30;"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_akumulasi_penyusutan_awal">Akumulasi Penyusutan Per 1 Januari 2026 (Rp)</label>
+                                                    <input type="text" id="inv_akumulasi_penyusutan_awal" name="akumulasi_penyusutan_awal" inputmode="numeric" placeholder="Rp0">
+                                                </div>
+                                                <div class="form-group full-width" style="position:relative;">
+                                                    <label for="inv_link_akun_akumulasi_penyusutan">Link Akun Akumulasi Penyusutan</label>
+                                                    <input type="text" id="inv_link_akun_akumulasi_penyusutan" name="link_akun_akumulasi_penyusutan" placeholder="Cari link akun CoA..." autocomplete="off">
+                                                    <div id="inv_link_akun_akumulasi_penyusutan_dropdown" style="display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:260px; overflow:auto; background:#fff; border:1px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 10px 24px rgba(15,23,42,0.10); z-index:30;"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_nilai_buku_awal">Nilai Buku Per 1 Januari 2026 (Rp)</label>
+                                                    <input type="text" id="inv_nilai_buku_awal" readonly placeholder="Rp0" style="background-color: #f3f4f6; cursor: not-allowed; font-weight: 600;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inv_status">Status</label>
+                                                    <select id="inv_status" name="status">
+                                                        <option value="Aktif">Aktif</option>
+                                                        <option value="Dijual">Dijual</option>
+                                                        <option value="Dihapus">Dihapus</option>
+                                                        <option value="Tidak Aktif (Dihentikan)">Tidak Aktif (Dihentikan)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group full-width" style="display:flex; align-items:center; gap:10px; padding-top:30px;">
+                                                    <input type="checkbox" id="inv_kartu_aset_tetap" name="kartu_aset_tetap" value="1" style="width:18px; height:18px; margin:0;">
+                                                    <label for="inv_kartu_aset_tetap" style="margin:0;">Kartu Aset Tetap</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-actions mt-4">
+                                                <button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan Data</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="buka-periode-view" style="display:none; animation: fadeIn 0.3s ease;">
+                                <div class="dash-header" style="margin-bottom: 24px; align-items:flex-start; gap:16px;">
+                                    <div>
+                                        <h2>Buka Periode</h2>
+                                        <p style="color:var(--text-secondary); font-size:0.9rem; max-width:840px;">Laporan ini disusun dari CoA aktif. Bagian berwarna kuning dapat diubah untuk penentuan periode serta nominal saldo awal debit dan kredit pada level akun masing-masing. Hasil akhirnya akan dipakai untuk membentuk laporan Saldo Awal.</p>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <input type="date" id="saldo-awal-periode-input" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;">
+
+                                <div class="widget form-widget" style="margin-bottom:24px;">
+                                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                                        <h3><i class="fa-solid fa-file-invoice"></i> Form Tambah Baris Saldo Awal</h3>
+                                        <span style="font-size:0.82rem; color:var(--text-secondary);">Gunakan tombol Tambah untuk menampilkan form ini saat perlu menambahkan akun manual.</span>
+                                    </div>
+                                    <div class="widget-body" id="saldo-awal-form-widget" style="display:none; padding: 32px;">
+                                        <form id="saldoAwalForm">
+                                            <input type="hidden" id="saldo_awal_edit_index" value="">
+                                            <div class="form-grid" style="margin-bottom:20px;">
+                                                <div class="form-group">
+                                                    <label for="saldo_awal_coa_select">Akun CoA</label>
+                                                    <select id="saldo_awal_coa_select">
+                                                        <option value="">-- Pilih Akun CoA --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="saldo_awal_level">Level Akun <span class="req">*</span></label>
+                                                    <input type="number" id="saldo_awal_level" min="1" max="5" step="1" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="saldo_awal_kelompok">Kelompok <span class="req">*</span></label>
+                                                    <input type="text" id="saldo_awal_kelompok" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="saldo_awal_status">Status Akun <span class="req">*</span></label>
+                                                    <select id="saldo_awal_status" required>
+                                                        <option value="Header">Header</option>
+                                                        <option value="Detail">Detail</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label for="saldo_awal_nama_akun">Nama Akun <span class="req">*</span></label>
+                                                    <input type="text" id="saldo_awal_nama_akun" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-actions mt-4" style="display:flex; gap:10px; flex-wrap:wrap;">
+                                                <button type="submit" class="primary-btn"><i class="fa-solid fa-plus"></i> Tambah ke Laporan</button>
+                                                <button type="button" id="btn-cancel-saldo-awal-form" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-xmark"></i> Batal</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="widget">
+                                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                                        <div>
+                                            <h3><i class="fa-solid fa-table-list"></i> Buka Periode</h3>
+                                            <p style="margin-top:6px; font-size:0.82rem; color:var(--text-secondary);">Kolom kode akun, debit, dan kredit mengikuti posisi level seperti template Excel.</p>
+                                        </div>
+                                        <div style="display:flex; align-items:flex-end; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+                                            <button type="button" id="btn-refresh-saldo-awal-master" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border:none; border-radius:8px; background:#1d4ed8; color:#ffffff; font-size:0.82rem; font-weight:700; cursor:pointer; white-space:nowrap;"><i class="fa-solid fa-rotate"></i> Tarik Data</button>
+                                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                                                <span id="saldo-awal-summary" style="font-size:0.82rem; color:var(--text-secondary);">Belum ada data saldo awal.</span>
+                                                <span id="saldo-awal-last-refresh" style="font-size:0.76rem; color:#64748b;">Terakhir ditarik: belum ada</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="widget-body" style="padding:24px;">
+                                        <div id="saldo-awal-table-container"></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="saldo-awal-view" style="display:none; animation: fadeIn 0.3s ease;">
+                                <div class="dash-header" style="margin-bottom: 24px; align-items:flex-start; gap:16px;">
+                                    <div>
+                                        <h2>Saldo Awal</h2>
+                                        <p style="color:var(--text-secondary); font-size:0.9rem; max-width:840px;">Laporan ini digenerate dari tabel Buka Periode dan ditampilkan dalam format 4 kolom seperti template assets/SaldoAwal.xlsx: Kode Akun, Nama Akun, Debit, dan Kredit.</p>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <div class="widget">
+                                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                                        <div>
+                                            <h3><i class="fa-solid fa-file-lines"></i> Saldo Awal</h3>
+                                            <p style="margin-top:6px; font-size:0.82rem; color:var(--text-secondary);">Data ditarik dari input Buka Periode yang tersimpan pada profil aktif.</p>
+                                        </div>
+                                        <span id="saldo-awal-report-summary" style="font-size:0.82rem; color:var(--text-secondary);">Belum ada data saldo awal.</span>
+                                    </div>
+                                    <div class="widget-body" style="padding:24px;">
+                                        <div id="saldo-awal-report-container"></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="coa-view" style="display:none; animation: fadeIn 0.3s ease;">
+                                <div class="dash-header" style="margin-bottom: 24px; align-items:flex-start; gap:16px;">
+                                    <div>
+                                        <h2>Form Chart of Account:</h2>
+                                        <p style="color:var(--text-secondary); font-size:0.9rem; max-width:780px;">Field CoA diselaraskan dengan lembar kerja: Kode Akun bertingkat, Nama Akun, Kelompok, Status Akun, Level Akun, Sisi Saldo Normal, dan Catatan. Kode parent tetap tersedia sebagai bantuan struktur hierarki saat menyusun draft.</p>
+                                    </div>
+                                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                        <a href="/assets/coa.csv" download="coa.csv" id="btn-download-template-coa" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border); text-decoration:none;"><i class="fa-solid fa-file-arrow-down"></i> Download Template CoA</a>
+                                        <button type="button" id="btn-upload-coa-csv" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);"><i class="fa-solid fa-file-arrow-up"></i> Upload CSV</button>
+                                        <input type="file" id="input-upload-coa-csv" accept=".csv,text/csv" style="display:none;">
+                                    </div>
+                                </div>
+
+                                <div class="widget form-widget" id="coa-form-widget" style="display:none; margin-bottom:24px;">
+                                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                                        <h3><i class="fa-solid fa-sitemap"></i> Form Input Bagan Akun</h3>
+                                        <button type="button" id="coa-form-mode" class="primary-btn" style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#eef6f1; color:#0a4f3b; border:1px solid #cfe8da; font-size:0.82rem; font-weight:600;"><i class="fa-solid fa-plus"></i> Tambah Baru</button>
+                                    </div>
+                                    <div class="widget-body" style="padding: 32px;">
+                                        <form id="coaForm">
+                                            <input type="hidden" id="coa_edit_index" value="">
+                                            <div class="form-grid" style="margin-bottom: 20px;">
+                                                <div class="form-group">
+                                                    <label>Kelompok <span class="req">*</span></label>
+                                                    <select id="coa_kelompok" required>
+                                                        <option value="">-- Pilih Kelompok --</option>
+                                                        <option value="Aset">Aset</option>
+                                                        <option value="Kewajiban">Kewajiban</option>
+                                                        <option value="Ekuitas">Ekuitas</option>
+                                                        <option value="Pendapatan">Pendapatan</option>
+                                                        <option value="Beban">Beban</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Status Akun <span class="req">*</span></label>
+                                                    <select id="coa_header_detail" required>
+                                                        <option value="">-- Pilih Status --</option>
+                                                        <option value="Header">Header</option>
+                                                        <option value="Detail">Detail</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Level Akun <span class="req">*</span></label>
+                                                    <input type="number" id="coa_level" min="1" max="5" step="1" required placeholder="Contoh: 3">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Kode Akun <span class="req">*</span></label>
+                                                    <input type="text" id="coa_kode_akun" required placeholder="Contoh: 1-1110">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Akun Parent</label>
+                                                    <select id="coa_kode_parent">
+                                                        <option value="">-- Pilih Parent --</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Sisi Saldo Normal <span class="req">*</span></label>
+                                                    <select id="coa_saldo_normal" required>
+                                                        <option value="Debit">Debit</option>
+                                                        <option value="Kredit">Kredit</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label>Nama Akun <span class="req">*</span></label>
+                                                    <input type="text" id="coa_nama_akun" required placeholder="Contoh: Kas">
+                                                </div>
+                                                <div class="form-group full-width">
+                                                    <label>Catatan</label>
+                                                    <textarea id="coa_definisi" rows="4" placeholder="Penjelasan fungsi akun untuk kebutuhan pelaporan dan mapping."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-actions mt-4" style="display:flex; gap:10px; flex-wrap:wrap;">
+                                                <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan Draft Akun</button>
+                                                <button type="button" id="btn-cancel-coa-edit" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); display:none;"><i class="fa-solid fa-xmark"></i> Batalkan Edit</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="widget">
+                                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                                        <h3><i class="fa-solid fa-table-list"></i> Draft CoA</h3>
+                                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                            <span style="font-size:0.82rem; color:var(--text-secondary);">Draft ditampilkan mengikuti susunan kolom kerja CoA terbaru</span>
+                                            <button type="button" id="btn-add-coa" class="primary-btn"><i class="fa-solid fa-plus"></i> Tambah</button>
+                                        </div>
+                                    </div>
+                                    <div class="widget-body" style="padding: 24px;">
+                                        <div id="coa-table-container"></div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Barang & Jasa Data View -->
+                            <section id="barang-jasa-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-box-open"></i> Data Barang & Jasa</h3>
+                        <button id="btn-add-barang-jasa" class="primary-btn"><i class="fa-solid fa-plus"></i> Tambah Data</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;" id="barang-jasa-table-container">
+                        <!-- Table injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Barang & Jasa Form View -->
+            <section id="barang-jasa-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-boxes-stacked"></i> Form Barang & Jasa</h3>
+                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/barang-jasa')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="barangJasaForm">
+                            <input type="hidden" id="barang_jasa_id" name="id" value="">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="kode_barang_jasa">Kode Barang/Jasa</label>
+                                    <input type="text" id="kode_barang_jasa" name="kode_barang_jasa" placeholder="Otomatis diisi oleh sistem (misal: BJS-0001)" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
+                                </div>
+                                <div class="form-group full-width" id="barang_jasa_profile_bumdes_container" style="display:none;">
+                                    <label for="barang_jasa_profile_bumdes_id">Profile BUMDes Wilayah</label>
+                                    <select id="barang_jasa_profile_bumdes_id" name="profile_bumdes_id">
+                                        <option value="">-- Akses Global --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="barang_jasa_unit_usaha_id">Unit Usaha <span class="req">*</span></label>
+                                    <select id="barang_jasa_unit_usaha_id" name="unit_usaha_id" required>
+                                        <option value="">-- Pilih Unit Usaha --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="nama_barang_jasa">Nama Barang/Jasa <span class="req">*</span></label>
+                                    <input type="text" id="nama_barang_jasa" name="nama_barang_jasa" placeholder="Masukkan nama barang atau jasa" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="jenis_barang_jasa">Jenis <span class="req">*</span></label>
+                                    <select id="jenis_barang_jasa" name="jenis" required>
+                                        <option value="">-- Pilih Jenis --</option>
+                                        <option value="barang">Barang</option>
+                                        <option value="jasa">Jasa</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="satuan_barang_jasa">Satuan <span class="req">*</span></label>
+                                    <input type="text" id="satuan_barang_jasa" name="satuan" placeholder="Contoh: pcs, paket, jam" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="harga_beli_awal_barang_jasa">Harga Beli Awal (Rp)</label>
+                                    <input type="number" id="harga_beli_awal_barang_jasa" name="harga_beli_awal" step="0.01" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="harga_jual_barang_jasa">Harga Jual (Rp) <span class="req">*</span></label>
+                                    <input type="number" id="harga_jual_barang_jasa" name="harga_jual" step="0.01" placeholder="0" required>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-floppy-disk"></i> Simpan Data</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transaksi Data View (List of Transactions) -->
+            <section id="transaksi-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Data Transaksi</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Kelola data transaksi harian unit usaha.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <select id="transaksi-filter-unit-usaha" style="appearance:none; background:#ffffff; border:1px solid var(--border); border-radius:10px; padding:10px 14px; min-width:220px; font-weight:600; color:var(--text-primary); cursor:pointer;">
+                            <option value="all">All Unit Usaha</option>
+                        </select>
+                        <button id="btn-add-transaksi" class="primary-btn"><i class="fa-solid fa-plus"></i> Input Transaksi Baru</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="transaksi-table-container">
+                            <!-- Table will be injected here via JS -->
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-wallet fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data transaksi yang terdaftar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transaksi Form View -->
+            <section id="transaksi-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Input Transaksi Harian</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Masukkan transaksi harian sesuai jenis penerimaan / pengeluaran kas.</p>
+                    </div>
+                </div>
+
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-file-invoice-dollar"></i> Form Transaksi</h3>
+                        <button type="button" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" onclick="navigateTo('/transaksi')"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px; overflow: visible;">
+                        <div style="position:relative; overflow:visible; border: 1px solid var(--border); border-radius: var(--radius-md); background:#ffffff;">
+                            <div style="overflow:visible; border-radius: inherit;">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 1000px;">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="background-color: #dcedc8; padding: 12px 16px; border: 1px solid var(--border); font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">INPUT TRANSAKSI HARIAN</th>
+                                        <th colspan="2" style="background-color: #dcedc8; padding: 12px 16px; border: 1px solid var(--border); font-weight: 600; text-align: right; text-transform: uppercase; font-size: 0.9rem;">
+                                            UNIT USAHA: 
+                                            <select id="transaksi-unit-usaha" style="appearance: none; background: #ffffff; border: 1px solid #ccc; border-radius: 20px; padding: 6px 14px; margin-left: 12px; font-weight: 600; text-align: center; font-size: 0.9rem; min-width: 160px; cursor: pointer;">
+                                                <option value="">-- Pilih Unit Usaha --</option>
+                                            </select>
+                                        </th>
+                                    </tr>
+                                    <tr style="background-color: #f0f4f0; border-bottom: 2px solid ifdef(--border, #ccc);">
+                                        <th style="padding: 12px 16px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; font-size: 0.85rem; width: 14%; text-align: center;">Tanggal</th>
+                                        <th style="padding: 12px 16px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; font-size: 0.85rem; width: 36%;">Nama Pelanggan/Pemasok</th>
+                                        <th style="padding: 12px 16px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; font-size: 0.85rem; width: 42%;">Keterangan</th>
+                                        <th style="padding: 12px 16px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; font-size: 0.85rem; width: 8%; text-align: center;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transaksi-form-tbody">
+                                    <tr data-row-type="main" style="background-color: #f9faf9; border-bottom: 1px solid var(--border);">
+                                        <td style="padding: 12px 16px; border-right: 1px solid var(--border);">
+                                            <input type="date" id="transaksi-initial-date" style="width: 100%; border: 1px solid #ddd; background: #ffffff; padding: 6px 8px; border-radius: 4px; font-weight: 500; font-size: 0.9rem;" required>
+                                        </td>
+                                        <td style="padding: 12px 16px; border-right: 1px solid var(--border);">
+                                            <div style="display:grid; grid-template-columns: 170px minmax(0, 1fr); gap:8px; align-items:center;">
+                                                <select data-field="partner-type" style="width:100%; background:#ffffff; border:1px solid #ddd; border-radius:6px; padding:7px 10px; font-size:0.85rem;" autocomplete="off">
+                                                    <option value="pelanggan" selected>Pelanggan</option>
+                                                    <option value="supplier">Supplier / Pemasok</option>
+                                                </select>
+                                                <input type="text" data-field="partner-name" list="transaksi-pelanggan-list" style="width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; font-size: 0.9rem;" placeholder="Pilih atau ketik nama pelanggan..." autocomplete="off">
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px 16px; border-right: 1px solid var(--border); position:relative;">
+                                            <input type="text" data-field="keterangan" style="width: 100%; border: 1px solid #ddd; background: #ffffff; padding: 6px 104px 6px 8px; border-radius: 4px; font-size: 0.9rem;" placeholder="" required>
+                                            <div data-field="ai-loading" style="display:none; align-items:center; gap:6px; position:absolute; right:20px; top:50%; transform:translateY(-50%); padding:4px 8px; border-radius:999px; background:rgba(29, 78, 216, 0.08); border:1px solid rgba(29, 78, 216, 0.16);">
+                                                <span style="font-size:0.68rem; font-weight:700; letter-spacing:0.2px; color:#1d4ed8;">AI</span>
+                                                <span style="display:block; width:52px; height:6px; border-radius:999px; background:linear-gradient(90deg, rgba(29,78,216,0.18) 0%, rgba(59,130,246,0.95) 35%, rgba(147,197,253,1) 50%, rgba(59,130,246,0.95) 65%, rgba(29,78,216,0.18) 100%); background-size:200% 100%; animation:transaksiAiProgress 1.15s linear infinite;"></span>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px 16px; text-align: center;">
+                                            <button type="button" class="action-btn delete" onclick="removeTransaksiRow(this)" style="border: none; background: none; cursor: pointer; color: #999; font-size: 1.2rem;" title="Hapus baris"><i class="fa-solid fa-xmark"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr data-row-type="detail" style="display:table-row; background:#f7fbff; border-bottom: 1px solid var(--border);">
+                                        <td colspan="4" style="padding: 10px 16px 12px 16px; border-top: none;">
+                                            <div style="display:grid; grid-template-columns: 1.4fr 1fr 1fr 0.8fr 0.7fr 0.7fr; gap:10px; align-items:end;">
+                                                <div>
+                                                    <div data-field="mapping-select-wrap" style="display:block; position:relative; margin-top:8px;">
+                                                        <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:#1d4ed8; margin-bottom:4px;">Pilihan Mapping</div>
+                                                        <input type="text" data-field="mapping-search" style="width:100%; background:#ffffff; border:1px solid #c7d2fe; border-radius:6px; padding:7px 10px; font-size:0.82rem; color:#334155;" placeholder="Cari atau pilih mapping..." autocomplete="off">
+                                                        <div data-field="mapping-dropdown" style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:40; max-height:220px; overflow:auto; border:1px solid #c7d2fe; border-radius:8px; background:#ffffff; box-shadow:0 12px 24px rgba(15, 23, 42, 0.12);"></div>
+                                                        <select data-field="mapping-select" style="display:none;">
+                                                            <option value="">-</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); margin-bottom:4px;">Debit</div>
+                                                    <input type="text" data-field="akun-debet" style="width: 100%; border: 1px solid #ddd; background: #f8fafc; padding: 7px 10px; border-radius: 6px; font-size: 0.84rem; color:#334155;" placeholder="otomatis dari mapping..." readonly>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); margin-bottom:4px;">Kredit</div>
+                                                    <input type="text" data-field="akun-kredit" style="width: 100%; border: 1px solid #ddd; background: #f8fafc; padding: 7px 10px; border-radius: 6px; font-size: 0.84rem; color:#334155;" placeholder="otomatis dari mapping..." readonly>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); margin-bottom:4px;">Nominal</div>
+                                                    <input type="number" data-field="nominal" style="width: 100%; border: 1px solid #ddd; background: #ffffff; padding: 7px 10px; border-radius: 6px; text-align: right; font-weight: 500; font-size: 0.86rem;" placeholder="0" required>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); margin-bottom:4px;">Kas Masuk/Kas Keluar</div>
+                                                    <select data-field="tipe-kas" style="appearance: none; width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 7px 8px; font-weight: 500; font-size: 0.86rem; text-align: center; cursor: pointer;">
+                                                        <option value="">-</option>
+                                                        <option value="tambah">Masuk</option>
+                                                        <option value="kurang">Keluar</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <div style="font-size:0.74rem; font-weight:600; letter-spacing:0.3px; color:var(--text-secondary); margin-bottom:4px;">Tunai/Kredit</div>
+                                                    <select data-field="status-bayar" style="appearance: none; width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 6px; padding: 7px 8px; font-weight: 500; font-size: 0.86rem; text-align: center; cursor: pointer;">
+                                                        <option value="tunai" selected>Tunai</option>
+                                                        <option value="kredit">Kredit</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                        <datalist id="transaksi-pelanggan-list"></datalist>
+                        <datalist id="transaksi-supplier-list"></datalist>
+                        <div style="padding: 16px 0 0 0; display: flex; justify-content: flex-end; align-items: center; gap: 12px;">
+                            <button type="button" class="primary-btn" id="btn-add-row-transaksi" style="padding: 10px 24px; background-color: var(--primary); color: #fff; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
+                            <button type="button" class="primary-btn" id="btn-save-transaksi" style="padding: 10px 24px; background-color: var(--primary); color: #fff; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600;"><i class="fa-solid fa-save"></i> Simpan Transaksi</button>
+                        </div>
+
+                        <!-- Tabel Data Transaksi -->
+                        <div style="margin-top: 48px;">
+                            <h3 style="margin-bottom: 16px; font-weight: 600; color: var(--text-primary);">Data Transaksi Terbaru</h3>
+                            <div id="transaksi-history-table-container" style="overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                <div style="padding: 32px; text-align: center; color: var(--text-secondary);">
+                                    <i class="fa-solid fa-inbox fa-2x" style="margin-bottom: 12px; opacity: 0.5;"></i>
+                                    <p>Belum ada data transaksi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="transaksi-subledger-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2 id="transaksi-subledger-title">Subledger Transaksi</h2>
+                        <p id="transaksi-subledger-description" style="color:var(--text-secondary); font-size:0.9rem;">Halaman ini menampilkan turunan transaksi sesuai submenu yang dipilih.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="transaksi-subledger-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-transaksi-subledger" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="transaksi-subledger-placeholder" style="text-align:center; padding:40px; color:var(--text-secondary); border:1px dashed var(--border); border-radius:var(--radius-md); background:#f8fafc;">
+                            <i class="fa-solid fa-book-open fa-3x" style="margin-bottom:16px;"></i>
+                            <h3 id="transaksi-subledger-empty-title" style="margin-bottom:8px; color:var(--text-primary);">BP Utang</h3>
+                            <p id="transaksi-subledger-empty-description" style="margin:0; max-width:620px; margin-inline:auto;">Submenu transaksi ini sudah tersedia di sidebar dan siap dihubungkan ke tabel atau workbook berikutnya.</p>
+                        </div>
+                        <div id="transaksi-subledger-table-container" style="display:none;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="kartu-persediaan-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div style="flex:1; min-width:0;">
+                        <h2>Kartu Persediaan</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format kartu persediaan mengikuti workbook dan otomatis mengambil barang yang mengaktifkan Kartu Persediaan.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; justify-content:flex-end; flex-shrink:0; margin-left:16px;">
+                        <select id="kartu-persediaan-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-kartu-persediaan" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="kartu-persediaan-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-boxes-stacked fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data kartu persediaan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="jurnal-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Jurnal</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format jurnal mengikuti workbook Jurnal dan hanya menampilkan transaksi dengan Validasi = Sudah.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="jurnal-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-jurnal" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="jurnal-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-book fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data jurnal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Jurnal Rekapitulasi View -->
+            <section id="jurnal-rekap-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Jurnal (Rekapitulasi)</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Gemini AI menyusun jurnal dari data profile, unit usaha, dan mapping transaksi. Keterangan dipakai untuk menentukan deskripsi jurnal, lalu deskripsi dipakai untuk menentukan debit dan kredit.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="jurnal-rekap-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-jurnal-rekap" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="jurnal-rekap-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-book fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data jurnal rekapitulasi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="histori-akun-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Buku Besar (Histori Akun)</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Riwayat mutasi debit, kredit, dan saldo berjalan per akun berdasarkan jurnal tervalidasi.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="histori-akun-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-histori-akun" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="histori-akun-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-book fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data histori akun.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="jurnal-penyesuaian-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Jurnal Penyesuaian</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format jurnal penyesuaian mengikuti shell assets/cek5.xlsx dan mengambil transaksi jurnal yang terhubung ke link Jurnal Penyesuaian.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="jurnal-penyesuaian-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-jurnal-penyesuaian" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="jurnal-penyesuaian-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-book fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data jurnal penyesuaian.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="jurnal-penyesuaian-rekap-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Rekapitulasi Jurnal Penyesuaian</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Rekap akun debit/kredit jurnal penyesuaian mengikuti pola rumus assets/cek6.xlsx per unit usaha.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="jurnal-penyesuaian-rekap-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-jurnal-penyesuaian-rekap" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="jurnal-penyesuaian-rekap-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-table-list fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data rekapitulasi jurnal penyesuaian.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="neraca-saldo-setelah-penyesuaian-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Neraca Saldo Setelah Penyesuaian</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek7.xlsx: Kode Akun, Nama Akun, Reff, Debit, Kredit, plus Total dan Cek Selisih.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="neraca-saldo-setelah-penyesuaian-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-neraca-saldo-setelah-penyesuaian" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="neraca-saldo-setelah-penyesuaian-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-scale-balanced fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data neraca saldo setelah penyesuaian.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="laporan-laba-rugi-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Laporan Laba Rugi</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek8.xlsx dan menghitung komponen laba rugi dari saldo akun pada data sistem.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="laporan-laba-rugi-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-laporan-laba-rugi" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="laporan-laba-rugi-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-file-invoice-dollar fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data laporan laba rugi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="laporan-penyertaan-modal-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Laporan Penyertaan Modal</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek9.xlsx dan menghitung komponen penyertaan modal dari saldo akun ekuitas pada data sistem.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="laporan-penyertaan-modal-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-laporan-penyertaan-modal" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="laporan-penyertaan-modal-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-hand-holding-dollar fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data laporan penyertaan modal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="laporan-perubahan-modal-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Laporan Perubahan Modal</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek10.xlsx dan menghitung perubahan ekuitas dari data sistem.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="laporan-perubahan-modal-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-laporan-perubahan-modal" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="laporan-perubahan-modal-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-chart-line fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data laporan perubahan modal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="posisi-keuangan-neraca-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Posisi Keuangan / Neraca</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek11.xlsx dan menghitung aset, kewajiban, serta ekuitas dari data sistem.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="posisi-keuangan-neraca-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-posisi-keuangan-neraca" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="posisi-keuangan-neraca-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-building-columns fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data posisi keuangan / neraca.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="laporan-arus-kas-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Laporan Arus Kas</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Format mengikuti assets/cek12.xlsx dengan pendekatan arus kas operasi, investasi, dan pembiayaan.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:nowrap; align-items:center; flex-shrink:0;">
+                        <select id="laporan-arus-kas-unit-filter" style="min-width:220px; background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text-primary); font-weight:500;">
+                            <option value="all">Semua Unit Usaha</option>
+                        </select>
+                        <button id="btn-refresh-laporan-arus-kas" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="laporan-arus-kas-table-container">
+                            <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                                <i class="fa-solid fa-money-bill-transfer fa-3x" style="margin-bottom:16px;"></i>
+                                <p>Belum ada data laporan arus kas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Desk Help View -->
+            <section id="desk-help-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2>Desk Help - Google Calendar</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Buat event Google Calendar dari perintah teks dengan bantuan Gemini.</p>
+                    </div>
+                </div>
+
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-calendar-plus"></i> Buat Event & Undang Email</h3>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span id="desk-help-google-status" style="font-size:0.8rem; color:var(--text-secondary);">Google: mengecek...</span>
+                            <button type="button" id="desk-help-connect-google-btn" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); padding:8px 12px; font-size:0.8rem;"><i class="fa-brands fa-google"></i> Hubungkan Google</button>
+                        </div>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="deskHelpForm">
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label>Email Undangan <span class="req">*</span></label>
+                                    <input type="text" id="desk_help_emails" name="emails" placeholder="contoh: user1@gmail.com, user2@gmail.com" required>
+                                    <small style="color:var(--text-secondary); display:block; margin-top:6px;">Pisahkan banyak email dengan koma.</small>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Perintah Event <span class="req">*</span></label>
+                                    <textarea id="desk_help_prompt" name="prompt" rows="5" placeholder="Contoh: Meeting evaluasi penjualan besok jam 10 sampai 11 WIB di kantor BUMDes, bahas target bulan depan." required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tanggal Event (Opsional)</label>
+                                    <input type="date" id="desk_help_event_date" name="event_date">
+                                </div>
+                                <div class="form-group">
+                                    <label>Jam Mulai Event (Opsional)</label>
+                                    <input type="time" id="desk_help_start_time" name="start_time">
+                                </div>
+                                <div class="form-group">
+                                    <label>Jam Selesai Event (Opsional)</label>
+                                    <input type="time" id="desk_help_end_time" name="end_time">
+                                </div>
+                                <div class="form-group">
+                                    <label>Jam Alarm Sebelum Event</label>
+                                    <input type="number" id="desk_help_alarm_hours" name="alarm_hours" value="1" min="0" max="72" placeholder="Contoh: 1">
+                                    <small style="color:var(--text-secondary); display:block; margin-top:6px;">Isi 0 untuk tanpa alarm tambahan.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Timezone</label>
+                                    <input type="text" id="desk_help_timezone" name="timezone" value="Asia/Jakarta" placeholder="Asia/Jakarta" readonly style="background:#f3f4f6; cursor:not-allowed;">
+                                </div>
+                            </div>
+                            <div class="form-actions mt-4" style="display:flex; gap:10px; align-items:center;">
+                                <button type="submit" id="desk-help-submit-btn" class="primary-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> Buat Event</button>
+                                <button type="button" id="desk-help-open-calendar-btn" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);" disabled><i class="fa-solid fa-calendar-check"></i> Buka Google Calendar</button>
+                            </div>
+                            <div id="desk-help-result" style="display:none; margin-top:16px; padding:12px; border:1px solid var(--border); border-radius:8px; background:#f8fbf8;"></div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mapping Transaksi Data View -->
+            <section id="mapping-transaksi-data-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2 id="mapping-transaksi-heading">Data Mapping Transaksi - Transaksi Harian</h2>
+                        <p id="mapping-transaksi-subtitle" style="color:var(--text-secondary); font-size:0.9rem;">Kelola mapping jenis transaksi harian ke akun keuangan.</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button id="btn-download-template-mapping-harian" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);"><i class="fa-solid fa-file-arrow-down"></i> Download Template</button>
+                        <button id="btn-upload-template-mapping-harian" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);"><i class="fa-solid fa-file-arrow-up"></i> Upload Template</button>
+                        <input type="file" id="input-upload-template-mapping-harian" accept=".csv,text/csv" style="display:none;">
+                        <button id="btn-seed-mapping-harian" class="primary-btn" style="background:#fff;color:#1976d2;border:1px solid #1976d2;"><i class="fa-solid fa-wand-magic-sparkles"></i> Isi Data Default (Harian.xlsx)</button>
+                        <button id="btn-add-mapping-transaksi" class="primary-btn"><i class="fa-solid fa-plus"></i> Tambah Mapping</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+                    <a href="/mapping-transaksi" data-link class="mapping-submenu-link" data-mapping-menu="harian" style="text-decoration:none; padding:8px 14px; border-radius:999px; border:1px solid var(--border); color:var(--text-secondary); background:#fff; font-size:0.86rem; font-weight:600;">Transaksi Harian</a>
+                    <a href="/mapping-transaksi/non-rutin" data-link class="mapping-submenu-link" data-mapping-menu="non-rutin" style="text-decoration:none; padding:8px 14px; border-radius:999px; border:1px solid var(--border); color:var(--text-secondary); background:#fff; font-size:0.86rem; font-weight:600;">Transaksi Non Rutin</a>
+                    <a href="/mapping-transaksi/umum" data-link class="mapping-submenu-link" data-mapping-menu="umum" style="text-decoration:none; padding:8px 14px; border-radius:999px; border:1px solid var(--border); color:var(--text-secondary); background:#fff; font-size:0.86rem; font-weight:600;">Transaksi Lainnya</a>
+                    <a href="/mapping-transaksi/jurnal" data-link class="mapping-submenu-link" data-mapping-menu="jurnal" style="text-decoration:none; padding:8px 14px; border-radius:999px; border:1px solid var(--border); color:var(--text-secondary); background:#fff; font-size:0.86rem; font-weight:600;">Jurnal</a>
+                </div>
+                <div class="widget">
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="mapping-transaksi-table-container">
+                            <!-- Table injected by JS -->
+                        </div>
+                        <div id="mapping-transaksi-submenu-placeholder" style="display:none;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mapping Transaksi Form View -->
+            <section id="mapping-transaksi-view" style="display:none; animation: fadeIn 0.3s ease;">
+                <div class="dash-header" style="margin-bottom: 24px;">
+                    <div>
+                        <h2 id="mapping-transaksi-form-title">Tambah Mapping Transaksi</h2>
+                        <p style="color:var(--text-secondary); font-size:0.9rem;">Isi data mapping transaksi arus kas sesuai klasifikasi dan kategori aktivitas.</p>
+                    </div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button id="btn-download-template-mapping-form" type="button" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);"><i class="fa-solid fa-file-arrow-down"></i> Download Template</button>
+                        <button id="btn-upload-template-mapping-form" type="button" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);"><i class="fa-solid fa-file-arrow-up"></i> Upload CSV</button>
+                        <input type="file" id="input-upload-template-mapping-form" accept=".csv,text/csv" style="display:none;">
+                    </div>
+                </div>
+                <div class="widget form-widget">
+                    <div class="widget-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3><i class="fa-solid fa-link"></i> Form Mapping Transaksi</h3>
+                        <button type="button" id="btn-back-mapping-transaksi" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div class="widget-body" style="padding: 32px;">
+                        <form id="mappingTransaksiForm">
+                            <input type="hidden" name="slug" id="mapping_transaksi_slug" value="">
+                            <input type="hidden" name="session_slug" id="mapping_transaksi_session_slug" value="">
+                            <input type="hidden" name="jenis_mapping" id="mapping_jenis_mapping_hidden" value="harian">
+                            <input type="hidden" name="kategori_transaksi" id="mapping_kategori_transaksi_hidden" value="masuk">
+
+                            <h4 class="section-title">Isian Mapping Sesuai Template</h4>
+                            <p id="mapping-template-hint" style="margin:-6px 0 18px; color:var(--text-secondary); font-size:0.9rem;">Urutan isian utama mengikuti assets/maping.xlsx: Unit Usaha, Deskripsi, Debit, Kredit, Cash Flow, dan Link Buku Pembantu.</p>
+                            <div class="form-grid" style="margin-bottom: 24px;">
+                                <div class="form-group">
+                                    <label>Unit Usaha</label>
+                                    <select name="unit_usaha_id" id="mapping_unit_usaha_id">
+                                        <option value="">-- Semua Unit Usaha --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Deskripsi <span class="req">*</span></label>
+                                    <input type="text" name="nama_mapping" id="mapping_nama" required placeholder="Contoh: Pembelian kendaraan untuk usaha">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Baris Jurnal <span class="req">*</span></label>
+                                    <p style="margin:-4px 0 10px; color:var(--text-secondary); font-size:0.85rem;">Satu mapping bisa memiliki lebih dari satu pasang debit/kredit (misal: jurnal penjualan + jurnal HPP).</p>
+                                    <div id="mapping-journal-rows"></div>
+                                    <button type="button" id="btn-add-journal-row" class="primary-btn" style="background:#fff;color:var(--text-primary);border:1px solid var(--border);margin-top:10px;"><i class="fa-solid fa-plus"></i> Tambah Baris Jurnal</button>
+                                </div>
+                                <div class="form-group" id="mapping-cash-flow-group">
+                                    <label>Cash Flow <span class="req">*</span></label>
+                                    <select name="cash_in_out" id="mapping_cash_in_out" required>
+                                        <option value="">-- Pilih Cash Flow --</option>
+                                        <option value="kas_masuk">Kas Masuk</option>
+                                        <option value="kas_keluar">Kas Keluar</option>
+                                        <option value="non_kas">Non Kas</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="mapping-klasifikasi-group">
+                                    <label id="mapping-klasifikasi-label">Kategori</label>
+                                    <select name="klasifikasi_arus_kas" id="mapping_klasifikasi_arus_kas">
+                                        <option value="-">-</option>
+                                        <option value="Aktivitas Operasi" selected>Aktivitas Operasi</option>
+                                        <option value="Aktivitas Investasi">Aktivitas Investasi</option>
+                                        <option value="Aktivitas Pendanaan">Aktivitas Pendanaan</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width" id="mapping-kategori-group">
+                                    <label id="mapping-kategori-label">Sub Kategori</label>
+                                    <input type="text" name="kategori_arus_kas" id="mapping_kategori_arus_kas" placeholder="Kosongkan untuk mengikuti deskripsi">
+                                </div>
+                                <div class="form-group full-width" id="mapping-keterangan-main-group" style="display:none;">
+                                    <label>Keterangan</label>
+                                    <input type="text" name="keterangan" id="mapping_keterangan" placeholder="Isi keterangan mapping umum">
+                                </div>
+                            </div>
+
+                            <details id="mapping-advanced-details" style="margin-bottom:24px; border:1px solid var(--border); border-radius:10px; background:#fafafa;">
+                                <summary id="mapping-advanced-summary" style="cursor:pointer; padding:14px 16px; font-weight:600; color:var(--text-primary);">Pengaturan Lanjutan</summary>
+                                <div class="form-grid" style="padding: 0 16px 16px;">
+                                    <div class="form-group">
+                                        <label>Tipe Default</label>
+                                        <select name="tipe_default" id="mapping_tipe_default">
+                                            <option value="semua" selected>Semua</option>
+                                            <option value="tunai">Tunai</option>
+                                            <option value="kredit">Kredit</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group full-width" id="mapping-keterangan-advanced-group">
+                                        <label>Keterangan Tambahan</label>
+                                        <input type="text" id="mapping_keterangan_placeholder" placeholder="Opsional" disabled style="background:#f8fafc;color:#94a3b8;cursor:not-allowed;">
+                                    </div>
+                                    <div class="form-group" id="mapping-link-jurnal-penyesuaian-group" style="display:none;">
+                                        <label>Link Jurnal Penyesuaian</label>
+                                        <label style="display:flex; align-items:center; gap:12px; padding: 12px 14px; border:1px solid var(--border); border-radius:8px; background:#fafafa; cursor:pointer;">
+                                            <input type="checkbox" name="link_jurnal_penyesuaian" id="mapping_link_jurnal_penyesuaian" value="1" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer;">
+                                            <span style="font-weight:500; color:var(--text-primary);">Aktifkan Link Jurnal Penyesuaian</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <div class="form-actions mt-4">
+                                <button type="submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan Mapping</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-header" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <h3><i class="fa-solid fa-table-list"></i> Data Mapping Saat Ini</h3>
+                        <span style="font-size:0.82rem; color:var(--text-secondary);">Tabel ini mengikuti jenis mapping yang sedang aktif.</span>
+                    </div>
+                    <div class="widget-body" style="padding: 24px;">
+                        <div id="mapping-transaksi-form-table-container">
+                            <!-- Table injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3 id="confirm-modal-title">Konfirmasi</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-text">Apakah Anda yakin?</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="confirm-btn-cancel">Batal</button>
+                <button type="button" class="btn-confirm" id="confirm-btn-ok">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="modal-overlay" style="display: none; cursor: zoom-out;">
+        <img id="image-modal-content" src="" style="max-width: 90%; max-height: 90vh; border-radius: var(--radius-md); box-shadow: 0px 10px 40px rgba(0,0,0,0.6); animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+    </div>
+
+    <div id="barang-kartu-persediaan-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 1280px; padding: 0; text-align: left; overflow: hidden; border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:24px 28px 18px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, #f8fafc 0%, #eef6ea 100%);">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; color:var(--text-primary); display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-boxes-stacked"></i> Kartu Persediaan Barang</h3>
+                    <p id="barang-kartu-persediaan-subtitle" style="margin:8px 0 0; color:var(--text-secondary); font-size:0.92rem;">Mutasi persediaan untuk barang terpilih akan ditampilkan di sini.</p>
+                </div>
+                <button type="button" id="barang-kartu-persediaan-close" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); flex-shrink:0;"><i class="fa-solid fa-xmark"></i> Tutup</button>
+            </div>
+            <div style="padding:24px; max-height:min(78vh, 900px); overflow:auto; background:var(--surface-secondary, #fff);">
+                <div id="barang-kartu-persediaan-table-container">
+                    <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                        <i class="fa-solid fa-box-open fa-3x" style="margin-bottom:16px;"></i>
+                        <p>Pilih checklist kartu persediaan pada tabel barang untuk melihat detailnya.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="kartu-persediaan-manual-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 640px; padding: 0; text-align: left; overflow: hidden; border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);">
+            <form id="kartu-persediaan-manual-form">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:24px 28px 18px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, #f8fafc 0%, #eef6ea 100%);">
+                    <div>
+                        <h3 id="kartu-persediaan-manual-title" style="margin:0; font-size:1.2rem; color:var(--text-primary); display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-pen-to-square"></i> Input Manual Kartu Persediaan</h3>
+                        <p id="kartu-persediaan-manual-subtitle" style="margin:8px 0 0; color:var(--text-secondary); font-size:0.92rem;">Tambahkan mutasi stok manual untuk barang terpilih.</p>
+                    </div>
+                    <button type="button" id="kartu-persediaan-manual-close" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); flex-shrink:0;"><i class="fa-solid fa-xmark"></i> Tutup</button>
+                </div>
+                <div style="padding:24px; background:var(--surface-secondary, #fff);">
+                    <div id="kartu-persediaan-manual-error" style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:10px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; font-size:0.9rem;"></div>
+                    <div style="margin-bottom:14px;">
+                        <label for="kartu-persediaan-manual-deskripsi" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Deskripsi</label>
+                        <select id="kartu-persediaan-manual-deskripsi" required style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+                            <option value="">-- Pilih deskripsi dari mapping jurnal penyesuaian --</option>
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:14px;">
+                        <div>
+                            <label for="kartu-persediaan-manual-tanggal" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Tanggal</label>
+                            <input id="kartu-persediaan-manual-tanggal" type="date" required style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+                        </div>
+                        <div>
+                            <label for="kartu-persediaan-manual-jenis" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Jenis Mutasi</label>
+                            <select id="kartu-persediaan-manual-jenis" required style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+                                <option value="masuk">Masuk</option>
+                                <option value="keluar">Keluar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="kartu-persediaan-manual-qty" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Jumlah Unit</label>
+                            <input id="kartu-persediaan-manual-qty" type="number" step="0.01" min="0" required style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+                        </div>
+                        <div>
+                            <label for="kartu-persediaan-manual-harga" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Harga per Unit</label>
+                            <input id="kartu-persediaan-manual-harga" type="number" step="0.01" min="0" required style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px;">
+                        </div>
+                    </div>
+                    <div style="margin-top:14px;">
+                        <label for="kartu-persediaan-manual-keterangan" style="font-weight:600; color:var(--text-primary); display:block; margin-bottom:6px;">Keterangan</label>
+                        <textarea id="kartu-persediaan-manual-keterangan" rows="3" placeholder="Contoh: Penyesuaian hasil stok opname" style="width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; resize:vertical;"></textarea>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; padding:18px 24px 22px; border-top:1px solid var(--border); background:#f8fafc;">
+                    <button type="button" id="kartu-persediaan-manual-cancel" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border);">Batal</button>
+                    <button type="submit" id="kartu-persediaan-manual-submit" class="primary-btn"><i class="fa-solid fa-save"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="pelanggan-bp-piutang-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 1280px; padding: 0; text-align: left; overflow: hidden; border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:24px 28px 18px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, #f8fafc 0%, #eef6ea 100%);">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; color:var(--text-primary); display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-book-open"></i> Buku Pembantu Piutang</h3>
+                    <p id="pelanggan-bp-piutang-subtitle" style="margin:8px 0 0; color:var(--text-secondary); font-size:0.92rem;">Mutasi piutang pelanggan terpilih akan ditampilkan di sini.</p>
+                </div>
+                <button type="button" id="pelanggan-bp-piutang-close" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); flex-shrink:0;"><i class="fa-solid fa-xmark"></i> Tutup</button>
+            </div>
+            <div style="padding:24px; max-height:min(78vh, 900px); overflow:auto; background:var(--surface-secondary, #fff);">
+                <div id="pelanggan-bp-piutang-table-container">
+                    <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                        <i class="fa-solid fa-book-open-reader fa-3x" style="margin-bottom:16px;"></i>
+                        <p>Pilih checklist buku pembantu piutang pada tabel pelanggan untuk melihat detailnya.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="supplier-bp-utang-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 1280px; padding: 0; text-align: left; overflow: hidden; border: 1px solid rgba(148, 163, 184, 0.18); box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:24px 28px 18px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, #f8fafc 0%, #eef6ea 100%);">
+                <div>
+                    <h3 style="margin:0; font-size:1.2rem; color:var(--text-primary); display:flex; align-items:center; gap:10px;"><i class="fa-solid fa-book-open"></i> Buku Pembantu Utang</h3>
+                    <p id="supplier-bp-utang-subtitle" style="margin:8px 0 0; color:var(--text-secondary); font-size:0.92rem;">Mutasi utang supplier terpilih akan ditampilkan di sini.</p>
+                </div>
+                <button type="button" id="supplier-bp-utang-close" class="primary-btn" style="background:#fff; color:var(--text-primary); border:1px solid var(--border); flex-shrink:0;"><i class="fa-solid fa-xmark"></i> Tutup</button>
+            </div>
+            <div style="padding:24px; max-height:min(78vh, 900px); overflow:auto; background:var(--surface-secondary, #fff);">
+                <div id="supplier-bp-utang-table-container">
+                    <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                        <i class="fa-solid fa-book-open-reader fa-3x" style="margin-bottom:16px;"></i>
+                        <p>Pilih checklist buku pembantu utang pada tabel supplier untuk melihat detailnya.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/script.js?v=260"></script>
+</body>
+</html>
