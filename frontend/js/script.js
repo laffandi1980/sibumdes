@@ -2579,6 +2579,8 @@ document.addEventListener('DOMContentLoaded', () => {
             path = '/dashboard';
         }
 
+        refreshAsetTetapInboxNotifications();
+
         // Route map
         if (path === '/' || path === '/dashboard' || path === '/index.html') {
             if(dashboardView) dashboardView.style.display = 'block';
@@ -4879,6 +4881,18 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', closeHandler);
     };
 
+    const asetTetapInboxModal = document.getElementById('aset-tetap-inbox-modal');
+    const asetTetapInboxCloseBtn = document.getElementById('aset-tetap-inbox-close');
+    if (asetTetapInboxCloseBtn) {
+        asetTetapInboxCloseBtn.addEventListener('click', closeAsetTetapInboxModal);
+    }
+    if (asetTetapInboxModal) {
+        asetTetapInboxModal.addEventListener('click', (event) => {
+            if (event.target === asetTetapInboxModal) {
+                closeAsetTetapInboxModal();
+            }
+        });
+    }
 
     // --- Dynamic Unit Usaha Logic ---
     if(btnAddUnit && unitUsahaList) {
@@ -5052,6 +5066,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transaksiHistoryState.items = (transaksiHistoryState.items || []).map((item) =>
             Number(item.id) === Number(updatedTx.id) ? updatedTx : item
         );
+        updateAsetTetapInboxFromState();
     }
 
     function rerenderLocalTransaksiViews() {
@@ -11318,6 +11333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTransaksiMappingReferences(mappings || []);
                 transaksiHistoryState.items = data || [];
                 renderTransaksiHistoryTable(data || []);
+                updateAsetTetapInboxFromState();
             })
             .catch(err => {
                 console.error("Failed to load transaksi history", err);
@@ -11352,6 +11368,12 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedUnitId: 'all',
         mappingReferences: [],
         mappingReferencesByName: new Map()
+    };
+
+    const asetTetapInboxState = {
+        items: [],
+        lastFetchedAt: 0,
+        isLoading: false,
     };
 
     const transaksiHistoryState = {
@@ -11432,6 +11454,220 @@ document.addEventListener('DOMContentLoaded', () => {
             const candidateUnitId = candidate.unit_usaha_id ? String(candidate.unit_usaha_id) : '';
             return !candidateUnitId || !txUnitId || candidateUnitId === txUnitId;
         }) || candidates[0] || null;
+    }
+
+    function isTransaksiJualForAsetInbox(tx) {
+        const text = normalizeTransaksiMappingKey([
+            tx && tx.deskripsi,
+            tx && tx.keterangan,
+        ].filter(Boolean).join(' '));
+        return /\bjual\b|\bpenjualan\b/.test(text);
+    }
+
+    function isTransaksiSudahValidated(tx) {
+        return normalizeTransaksiValidasiLabel(tx && tx.validasi ? tx.validasi : 'Belum') === 'Sudah';
+    }
+
+    function getTransaksiMappedAsetTetapLinkValue(tx, mapping) {
+        if (!mapping) return false;
+
+        const txDebit = normalizeTransaksiMappingKey(tx && tx.akun_debet ? tx.akun_debet : '');
+        const txKredit = normalizeTransaksiMappingKey(tx && tx.akun_kredit ? tx.akun_kredit : '');
+        const details = Array.isArray(mapping.details) ? mapping.details : [];
+
+        if (details.length > 0) {
+            const matchedDetail = details.find((detail) => {
+                const detailDebit = normalizeTransaksiMappingKey(detail && detail.akun_debet ? detail.akun_debet : '');
+                const detailKredit = normalizeTransaksiMappingKey(detail && detail.akun_kredit ? detail.akun_kredit : '');
+                return txDebit && txKredit && detailDebit === txDebit && detailKredit === txKredit;
+            });
+
+            if (matchedDetail) {
+                return !!matchedDetail.link_aset_tetap || !!mapping.link_aset_tetap;
+            }
+
+            return details.some((detail) => !!(detail && detail.link_aset_tetap)) || !!mapping.link_aset_tetap;
+        }
+
+        return !!mapping.link_aset_tetap;
+    }
+
+    function buildAsetTetapInboxItems(transaksiRows, mappingRows) {
+        setTransaksiMappingReferences(mappingRows || []);
+
+        const rows = Array.isArray(transaksiRows) ? transaksiRows : [];
+        return sortTransaksiRecordsDesc(rows)
+            .filter((tx) => {
+                if (!isTransaksiSudahValidated(tx)) return false;
+                if (!isTransaksiJualForAsetInbox(tx)) return false;
+                const mapping = findWorkbookMappingForTransaksi(tx);
+                return getTransaksiMappedAsetTetapLinkValue(tx, mapping);
+            })
+            .map((tx) => ({
+                id: tx.id,
+                tanggal: tx.tanggal,
+                deskripsi: tx.deskripsi || '-',
+                keterangan: tx.keterangan || '-',
+                nama: tx.nama_pelanggan_pemasok || '-',
+                unitUsaha: tx.unit_usaha && tx.unit_usaha.NamaUnitUsaha ? tx.unit_usaha.NamaUnitUsaha : '-',
+                nominal: Number(tx.nominal || 0),
+                validasi: normalizeTransaksiValidasiLabel(tx.validasi || 'Belum'),
+            }));
+    }
+
+    function renderAsetTetapInboxBadge() {
+        const menuLink = document.getElementById('menu-kartu-aset-tetap-btn');
+        if (!menuLink) return;
+
+        menuLink.classList.add('with-notification-badge');
+
+        let badge = menuLink.querySelector('.aset-tetap-inbox-badge');
+        let countEl = menuLink.querySelector('.aset-tetap-inbox-badge-count');
+
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'aset-tetap-inbox-badge';
+            badge.title = 'Lihat kiriman transaksi ke Kartu Aset Tetap';
+            badge.innerHTML = '<i class="fa-regular fa-envelope"></i><span class="aset-tetap-inbox-badge-count">0</span>';
+            menuLink.appendChild(badge);
+
+            badge.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                openAsetTetapInboxModal();
+            });
+        }
+
+        countEl = countEl || badge.querySelector('.aset-tetap-inbox-badge-count');
+        if (!countEl) return;
+
+        const total = Array.isArray(asetTetapInboxState.items) ? asetTetapInboxState.items.length : 0;
+        if (total > 0) {
+            countEl.textContent = total > 99 ? '99+' : String(total);
+            badge.style.display = 'inline-flex';
+        } else {
+            countEl.textContent = '0';
+            badge.style.display = 'none';
+        }
+    }
+
+    function renderAsetTetapInboxModalContent() {
+        const container = document.getElementById('aset-tetap-inbox-table-container');
+        if (!container) return;
+
+        const rows = Array.isArray(asetTetapInboxState.items) ? asetTetapInboxState.items : [];
+        if (rows.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; color:var(--text-secondary);">
+                    <i class="fa-regular fa-envelope-open fa-3x" style="margin-bottom:16px;"></i>
+                    <p>Belum ada transaksi Jual dengan link Kartu Aset Tetap (Inventaris).</p>
+                </div>
+            `;
+            return;
+        }
+
+        const body = rows.map((row) => {
+            const tanggal = row.tanggal
+                ? new Date(row.tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: '2-digit', day: '2-digit' })
+                : '-';
+            const nominal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Number(row.nominal || 0));
+            const validasiStyles = getTransaksiValidasiPillStyles(row.validasi);
+
+            return `
+                <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:10px 12px; white-space:nowrap; color:var(--text-secondary);">${escapeHtml(tanggal)}</td>
+                    <td style="padding:10px 12px; color:var(--text-primary); font-weight:600; min-width:220px;">${escapeHtml(row.deskripsi || '-')}</td>
+                    <td style="padding:10px 12px; color:var(--text-secondary); min-width:260px;">${escapeHtml(row.keterangan || '-')}</td>
+                    <td style="padding:10px 12px; color:var(--text-secondary); white-space:nowrap;">${escapeHtml(row.nama || '-')}</td>
+                    <td style="padding:10px 12px; color:var(--text-secondary); white-space:nowrap;">${escapeHtml(row.unitUsaha || '-')}</td>
+                    <td style="padding:10px 12px; text-align:right; white-space:nowrap; color:var(--text-primary); font-weight:600;">${escapeHtml(nominal)}</td>
+                    <td style="padding:10px 12px; text-align:center; white-space:nowrap;">
+                        <span style="display:inline-block; min-width:64px; text-align:center; background:${validasiStyles.background}; color:${validasiStyles.color}; padding:4px 10px; border-radius:999px; font-size:0.8rem; font-weight:600;">${escapeHtml(row.validasi)}</span>
+                    </td>
+                    <td style="padding:10px 12px; text-align:center; white-space:nowrap;">
+                        <button type="button" class="action-btn edit" onclick="editTransaksi(${Number(row.id)})" title="Buka transaksi" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#e3f2fd;color:#1976d2;"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div style="overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-md); background:#fff;">
+                <table style="width:100%; border-collapse:collapse; min-width:1080px;">
+                    <thead>
+                        <tr style="background:#f5f5f5; border-bottom:2px solid var(--border);">
+                            <th style="padding:10px 12px; text-align:left; white-space:nowrap;">Tanggal</th>
+                            <th style="padding:10px 12px; text-align:left; white-space:nowrap;">Deskripsi</th>
+                            <th style="padding:10px 12px; text-align:left; white-space:nowrap;">Keterangan</th>
+                            <th style="padding:10px 12px; text-align:left; white-space:nowrap;">Pelanggan/Pemasok</th>
+                            <th style="padding:10px 12px; text-align:left; white-space:nowrap;">Unit Usaha</th>
+                            <th style="padding:10px 12px; text-align:right; white-space:nowrap;">Nominal</th>
+                            <th style="padding:10px 12px; text-align:center; white-space:nowrap;">Validasi</th>
+                            <th style="padding:10px 12px; text-align:center; white-space:nowrap;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>${body}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function openAsetTetapInboxModal() {
+        const modal = document.getElementById('aset-tetap-inbox-modal');
+        if (!modal) return;
+        renderAsetTetapInboxModalContent();
+        modal.style.display = 'flex';
+    }
+
+    function closeAsetTetapInboxModal() {
+        const modal = document.getElementById('aset-tetap-inbox-modal');
+        if (!modal) return;
+        modal.style.display = 'none';
+    }
+
+    function updateAsetTetapInboxFromState() {
+        const transaksiRows = Array.isArray(transaksiDataViewState.items) ? transaksiDataViewState.items : [];
+        const mappingRows = Array.isArray(transaksiDataViewState.mappingReferences) ? transaksiDataViewState.mappingReferences : [];
+        asetTetapInboxState.items = buildAsetTetapInboxItems(transaksiRows, mappingRows);
+        renderAsetTetapInboxBadge();
+        const modal = document.getElementById('aset-tetap-inbox-modal');
+        if (modal && modal.style.display === 'flex') {
+            renderAsetTetapInboxModalContent();
+        }
+    }
+
+    async function refreshAsetTetapInboxNotifications(force = false) {
+        const now = Date.now();
+        if (!force && asetTetapInboxState.lastFetchedAt && (now - asetTetapInboxState.lastFetchedAt) < 30000) {
+            renderAsetTetapInboxBadge();
+            return;
+        }
+        if (asetTetapInboxState.isLoading) return;
+
+        asetTetapInboxState.isLoading = true;
+        try {
+            const sessionSlug = localStorage.getItem('sibumdes_auth') || '';
+            const [transaksiRows, mappingRows] = await Promise.all([
+                fetch('/api/transaksis?session_slug=' + encodeURIComponent(sessionSlug) + '&t=' + String(new Date().getTime())).then((res) => {
+                    if (!res.ok) throw new Error('Gagal memuat transaksi');
+                    return res.json();
+                }),
+                fetchWorkbookTransaksiMappingReferences(),
+            ]);
+
+            asetTetapInboxState.items = buildAsetTetapInboxItems(transaksiRows || [], mappingRows || []);
+            asetTetapInboxState.lastFetchedAt = now;
+            renderAsetTetapInboxBadge();
+
+            const modal = document.getElementById('aset-tetap-inbox-modal');
+            if (modal && modal.style.display === 'flex') {
+                renderAsetTetapInboxModalContent();
+            }
+        } catch (error) {
+            console.error('Failed to refresh aset tetap inbox notifications', error);
+        } finally {
+            asetTetapInboxState.isLoading = false;
+        }
     }
 
     async function fetchWorkbookTransaksiMappingReferences() {
@@ -11586,7 +11822,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th style="padding: 10px 12px; font-weight: 700; color: var(--text-primary); text-align: center; border-right: 1px solid var(--border); white-space: nowrap;">Link Jurnal Penyesuaian</th>
                             ${showValidasiColumn ? `<th style="padding: 10px 12px; font-weight: 700; color: var(--text-primary); text-align: center; border-right: 1px solid var(--border); white-space: nowrap;"><div style="display:flex; flex-direction:column; align-items:center; gap:8px;"><span>Validasi</span>${showValidasiAllButton ? `<button type="button" data-role="transaksi-validasi-all" onclick="validateAllTransaksi()" title="Validasi semua transaksi pada tampilan ini" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:120px; padding:6px 12px; border-radius:999px; border:1px solid #fdba74; background:#fff7ed; color:#c2410c; font-size:0.78rem; font-weight:700; cursor:pointer; white-space:nowrap;"><i class="fa-solid fa-check-double"></i><span>Validasi All</span></button>` : ''}</div></th>` : ''}
                             ${bumdesTh}
-                            <th style="padding: 10px 12px; font-weight: 700; color: var(--text-primary); text-align: center; white-space: nowrap;">${showDeleteAllButton ? `<div style="display:flex; flex-direction:column; align-items:center; gap:8px;"><span>Aksi</span><button type="button" class="action-btn delete" onclick="deleteAllTransaksi()" title="Hapus Semua Transaksi" style="display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px;"><i class="fa-solid fa-trash"></i></button></div>` : 'Aksi'}</th>
+                            <th style="padding: 10px 12px; font-weight: 700; color: var(--text-primary); text-align: center; white-space: nowrap; position: sticky; right: 0; background: #f5f5f5; z-index: 3; border-left: 1px solid var(--border);">${showDeleteAllButton ? `<div style="display:flex; flex-direction:column; align-items:center; gap:8px;"><span>Aksi</span><button type="button" class="action-btn delete" onclick="deleteAllTransaksi()" title="Hapus Semua Transaksi" style="display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px;"><i class="fa-solid fa-trash"></i></button></div>` : 'Aksi'}</th>
                         </tr>
                     </thead>
                     <tbody>`;
@@ -11637,9 +11873,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="padding: 10px 12px; text-align: center; color: var(--text-secondary); font-size: 0.9rem; border-right:1px solid var(--border);">${escapeHtml(linkJurnalPenyesuaian)}</td>
                     ${validasiTd}
                     ${bumdesTd}
-                    <td style="padding: 10px 12px; text-align: center; white-space:nowrap;">
-                        <button type="button" class="action-btn edit" data-no-row-click="true" onclick="editTransaksi(${tx.id})" title="Edit Transaksi"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" class="action-btn delete" data-no-row-click="true" onclick="deleteTransaksi(${tx.id})" title="Hapus Transaksi"><i class="fa-solid fa-trash"></i></button>
+                    <td style="padding: 10px 12px; text-align: center; white-space:nowrap; position: sticky; right: 0; background: #fff; z-index: 2; border-left:1px solid var(--border);">
+                        <button type="button" class="action-btn edit" data-no-row-click="true" onclick="editTransaksi(${tx.id})" title="Edit Transaksi" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:#e3f2fd;color:#1976d2;width:auto;">
+                            <i class="fa-solid fa-pen"></i><span style="font-size:0.78rem;font-weight:600;">Edit</span>
+                        </button>
+                        <button type="button" class="action-btn delete" data-no-row-click="true" onclick="deleteTransaksi(${tx.id})" title="Hapus Transaksi" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:#ffebee;color:#c62828;width:auto;margin-left:6px;">
+                            <i class="fa-solid fa-trash"></i><span style="font-size:0.78rem;font-weight:600;">Hapus</span>
+                        </button>
                     </td>
                 </tr>
             `;
@@ -11695,6 +11935,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 transaksiDataViewState.items = data || [];
                 syncTransaksiUnitFilterOptions(transaksiDataViewState.items);
                 renderTransaksiDataTable(getFilteredTransaksiDataViewItems());
+                updateAsetTetapInboxFromState();
             })
             .catch(err => {
                 console.error("Failed to load transaksi", err);
