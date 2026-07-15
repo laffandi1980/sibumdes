@@ -11456,10 +11456,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }) || candidates[0] || null;
     }
 
-    function isTransaksiJualForAsetInbox(tx) {
+    function isTransaksiJualForAsetInbox(tx, mapping = null) {
         const text = normalizeTransaksiMappingKey([
             tx && tx.deskripsi,
             tx && tx.keterangan,
+            tx && tx.mapping_nama,
+            tx && tx.nama_mapping,
+            tx && tx.akun_debet,
+            tx && tx.akun_kredit,
+            mapping && mapping.nama_mapping,
+            mapping && mapping.keterangan,
         ].filter(Boolean).join(' '));
         return /\bjual\b|\bpenjualan\b/.test(text);
     }
@@ -11499,8 +11505,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return sortTransaksiRecordsDesc(rows)
             .filter((tx) => {
                 if (!isTransaksiSudahValidated(tx)) return false;
-                if (!isTransaksiJualForAsetInbox(tx)) return false;
                 const mapping = findWorkbookMappingForTransaksi(tx);
+                if (!isTransaksiJualForAsetInbox(tx, mapping)) return false;
                 return getTransaksiMappedAsetTetapLinkValue(tx, mapping);
             })
             .map((tx) => ({
