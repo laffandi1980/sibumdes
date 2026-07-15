@@ -205,11 +205,6 @@ body {
     min-width: 16px;
     text-align: center;
 }
-.kartu-aset-tetap-title-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-}
 .submenu .divider { height: 1px; background-color: var(--border); margin: 8px 16px; }
 
 @keyframes slideDown {

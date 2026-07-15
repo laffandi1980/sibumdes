@@ -11516,37 +11516,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAsetTetapInboxBadge() {
-        const inlineBadges = Array.from(document.querySelectorAll('[data-role="aset-tetap-inbox-badge-inline"]'));
-        const total = Array.isArray(asetTetapInboxState.items) ? asetTetapInboxState.items.length : 0;
-
-        inlineBadges.forEach((badge) => {
-            const countEl = badge.querySelector('.aset-tetap-inbox-badge-count');
-            if (!countEl) return;
-
-            if (!badge.dataset.boundClick) {
-                badge.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openAsetTetapInboxModal();
-                });
-                badge.dataset.boundClick = '1';
-            }
-
-            if (total > 0) {
-                countEl.textContent = total > 99 ? '99+' : String(total);
-                badge.style.display = 'inline-flex';
-            } else {
-                countEl.textContent = '0';
-                badge.style.display = 'none';
-            }
-        });
-
-        // Clean up old sidebar badge behavior if it exists from older DOM render.
         const menuLink = document.getElementById('menu-kartu-aset-tetap-btn');
-        if (menuLink) {
-            menuLink.classList.remove('with-notification-badge');
-            const oldBadge = menuLink.querySelector('.aset-tetap-inbox-badge');
-            if (oldBadge) oldBadge.remove();
+        if (!menuLink) return;
+
+        menuLink.classList.add('with-notification-badge');
+
+        let badge = menuLink.querySelector('.aset-tetap-inbox-badge');
+        let countEl = menuLink.querySelector('.aset-tetap-inbox-badge-count');
+
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'aset-tetap-inbox-badge';
+            badge.title = 'Lihat kiriman transaksi ke Kartu Aset Tetap';
+            badge.innerHTML = '<i class="fa-regular fa-envelope"></i><span class="aset-tetap-inbox-badge-count">0</span>';
+            menuLink.appendChild(badge);
+
+            badge.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                openAsetTetapInboxModal();
+            });
+        }
+
+        countEl = countEl || badge.querySelector('.aset-tetap-inbox-badge-count');
+        if (!countEl) return;
+
+        const total = Array.isArray(asetTetapInboxState.items) ? asetTetapInboxState.items.length : 0;
+        if (total > 0) {
+            countEl.textContent = total > 99 ? '99+' : String(total);
+            badge.style.display = 'inline-flex';
+        } else {
+            countEl.textContent = '0';
+            badge.style.display = 'none';
         }
     }
 
@@ -12463,14 +12464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <table style="width:100%; border-collapse:collapse; text-align:left; min-width:2400px;">
                         <thead>
                             <tr>
-                                <th style="background:#dcedc8;padding:12px 16px;border:1px solid var(--border);font-weight:700;text-transform:uppercase;font-size:0.9rem;white-space:nowrap;">
-                                    <div class="kartu-aset-tetap-title-row">
-                                        <span>KARTU ASET TETAP (INVENTARIS)</span>
-                                        <span class="aset-tetap-inbox-badge" data-role="aset-tetap-inbox-badge-inline" title="Lihat kiriman transaksi ke Kartu Aset Tetap" style="display:none;">
-                                            <i class="fa-regular fa-envelope"></i><span class="aset-tetap-inbox-badge-count">0</span>
-                                        </span>
-                                    </div>
-                                </th>
+                                <th style="background:#dcedc8;padding:12px 16px;border:1px solid var(--border);font-weight:700;text-transform:uppercase;font-size:0.9rem;white-space:nowrap;">KARTU ASET TETAP (INVENTARIS)</th>
                                 <th colspan="20" style="background:#dcedc8;padding:12px 16px;border:1px solid var(--border);"></th>
                             </tr>
                             <tr>
@@ -12507,7 +12501,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         container.innerHTML = blocks;
-        renderAsetTetapInboxBadge();
     }
 
     function loadKartuAsetTetap(options = {}) {
