@@ -155,6 +155,7 @@ func SaveInventaris(w http.ResponseWriter, r *http.Request) {
 	}
 	existing.TanggalPembelian = parseDate(r.FormValue("tanggal_pembelian"))
 	existing.TanggalDigunakan = parseDate(r.FormValue("tanggal_digunakan"))
+	existing.TanggalStatusTidakAktif = parseDate(r.FormValue("tanggal_status_tidak_aktif"))
 
 	if err := service.SaveInventaris(existing); err != nil {
 		http.Error(w, "Error saving inventaris: "+err.Error(), http.StatusInternalServerError)
@@ -271,8 +272,19 @@ func ImportInventaris(w http.ResponseWriter, r *http.Request) {
 		akumulasiPenyusutanAwalStr := strings.TrimSpace(record[10])
 		linkAkunAkumulasiPenyusutan := strings.TrimSpace(record[11])
 		status := strings.TrimSpace(record[12])
-		kartuAsetTetapStr := strings.TrimSpace(record[13])
-		unitStr := strings.TrimSpace(record[14])
+		tanggalDigunakanStr := ""
+		tanggalStatusTidakAktifStr := ""
+		kartuAsetTetapStr := ""
+		unitStr := ""
+		if len(record) >= 17 {
+			tanggalDigunakanStr = strings.TrimSpace(record[13])
+			tanggalStatusTidakAktifStr = strings.TrimSpace(record[14])
+			kartuAsetTetapStr = strings.TrimSpace(record[15])
+			unitStr = strings.TrimSpace(record[16])
+		} else {
+			kartuAsetTetapStr = strings.TrimSpace(record[13])
+			unitStr = strings.TrimSpace(record[14])
+		}
 
 		if namaAset == "" || unitStr == "" {
 			continue
@@ -309,6 +321,8 @@ func ImportInventaris(w http.ResponseWriter, r *http.Request) {
 			AkumulasiPenyusutanAwal:     akumulasiPenyusutanAwal,
 			LinkAkunAkumulasiPenyusutan: linkAkunAkumulasiPenyusutan,
 			TanggalPembelian:            parseDate(tanggalPembelianStr),
+			TanggalDigunakan:            parseDate(tanggalDigunakanStr),
+			TanggalStatusTidakAktif:     parseDate(tanggalStatusTidakAktifStr),
 			UmurEkonomis:                umurEkonomis,
 			Status:                      status,
 			Aktif:                       strings.EqualFold(status, "aktif"),

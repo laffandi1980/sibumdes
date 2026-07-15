@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"regexp"
 	"sibumdes/internal/config"
@@ -1018,6 +1019,65 @@ func parseWorkbookDate(value string) time.Time {
 	return time.Time{}
 }
 
+func normalizeWorkbookDate(value time.Time) time.Time {
+	if value.IsZero() {
+		return time.Time{}
+	}
+	return time.Date(value.Year(), value.Month(), value.Day(), 0, 0, 0, 0, value.Location())
+}
+
+func workbookMonthSpanInclusive(startDate, endDate time.Time) int {
+	startDate = normalizeWorkbookDate(startDate)
+	endDate = normalizeWorkbookDate(endDate)
+	if startDate.IsZero() || endDate.IsZero() || endDate.Before(startDate) {
+		return 0
+	}
+	return (endDate.Year()-startDate.Year())*12 + int(endDate.Month()) - int(startDate.Month()) + 1
+}
+
+func resolveKartuAsetTetapPeriod(r *http.Request, selectedAsets []models.Inventaris) (time.Time, time.Time) {
+	parseQueryDate := func(keys ...string) time.Time {
+		for _, key := range keys {
+			if parsed := parseWorkbookDate(r.URL.Query().Get(key)); !parsed.IsZero() {
+				return normalizeWorkbookDate(parsed)
+			}
+		}
+		return time.Time{}
+	}
+
+	startDate := parseQueryDate("tanggal_awal", "start_date", "b2")
+	endDate := parseQueryDate("tanggal_akhir", "end_date", "b3")
+
+	if startDate.IsZero() {
+		for _, inv := range selectedAsets {
+			var candidate time.Time
+			if inv.TanggalDigunakan != nil && !inv.TanggalDigunakan.IsZero() {
+				candidate = normalizeWorkbookDate(*inv.TanggalDigunakan)
+			} else if inv.TanggalPembelian != nil && !inv.TanggalPembelian.IsZero() {
+				candidate = normalizeWorkbookDate(*inv.TanggalPembelian)
+			}
+			if candidate.IsZero() {
+				continue
+			}
+			if startDate.IsZero() || candidate.Before(startDate) {
+				startDate = candidate
+			}
+		}
+	}
+	if startDate.IsZero() {
+		startDate = normalizeWorkbookDate(time.Date(1900, time.January, 1, 0, 0, 0, 0, time.Local))
+	}
+
+	if endDate.IsZero() {
+		endDate = normalizeWorkbookDate(time.Now())
+	}
+	if endDate.Before(startDate) {
+		endDate = startDate
+	}
+
+	return startDate, endDate
+}
+
 func parseJurnalAkunParts(value string) (string, string) {
 	raw := strings.TrimSpace(value)
 	if raw == "" || raw == "-" {
@@ -1387,6 +1447,8 @@ func GetKartuAsetTetap(w http.ResponseWriter, r *http.Request) {
 		selectedAsets = append(selectedAsets, inv)
 	}
 
+	reportStart, reportEnd := resolveKartuAsetTetapPeriod(r, selectedAsets)
+
 	sort.SliceStable(selectedAsets, func(i, j int) bool {
 		leftUnit := uint(0)
 		if selectedAsets[i].UnitUsahaID != nil {
@@ -1404,7 +1466,7 @@ func GetKartuAsetTetap(w http.ResponseWriter, r *http.Request) {
 
 	result := make([]KartuAsetTetapGroup, 0, len(selectedAsets))
 	for _, inv := range selectedAsets {
-		group := buildKartuAsetTetapGroupForInventaris(inv, transaksis, mappingBySlug, mappingByName)
+		group := buildKartuAsetTetapGroupForInventaris(inv, transaksis, mappingBySlug, mappingByName, reportStart, reportEnd)
 		result = append(result, group)
 	}
 
@@ -1412,7 +1474,7 @@ func GetKartuAsetTetap(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func buildKartuAsetTetapGroupForInventaris(inv models.Inventaris, transaksis []models.Transaksi, mappingBySlug map[string]models.MappingTransaksi, mappingByName map[string]models.MappingTransaksi) KartuAsetTetapGroup {
+func buildKartuAsetTetapGroupForInventaris(inv models.Inventaris, transaksis []models.Transaksi, mappingBySlug map[string]models.MappingTransaksi, mappingByName map[string]models.MappingTransaksi, reportStart, reportEnd time.Time) KartuAsetTetapGroup {
 	unitName := "-"
 	if strings.TrimSpace(inv.UnitUsaha.NamaUnitUsaha) != "" {
 		unitName = strings.TrimSpace(inv.UnitUsaha.NamaUnitUsaha)
@@ -1428,50 +1490,71 @@ func buildKartuAsetTetapGroupForInventaris(inv models.Inventaris, transaksis []m
 		hargaPerolehan = float64(inv.SaldoAwal) + float64(inv.AkumulasiPenyusutanAwal)
 	}
 
-	// Beban penyusutan per bulan = (HargaPerolehan - NilaiResidu) / (UmurEkonomis * 12)
+	// Rumus mengikuti workbook: M = L * 12, N = ROUND((H - I) / M, 0)
 	umurBulan := inv.UmurEkonomis * 12
 	var bebanPerBulan float64
 	if umurBulan > 0 && hargaPerolehan > float64(inv.NilaiResidu) {
-		bebanPerBulan = (hargaPerolehan - float64(inv.NilaiResidu)) / float64(umurBulan)
+		bebanPerBulan = math.Round((hargaPerolehan - float64(inv.NilaiResidu)) / float64(umurBulan))
 	}
 
-	// Hitung Beban Penyusutan Periode Berjalan dari transaksi yang terhubung akumulasi penyusutan
-	akunAkumKey := strings.ToLower(strings.TrimSpace(inv.LinkAkunAkumulasiPenyusutan))
-	akunAsetKey := strings.ToLower(strings.TrimSpace(inv.LinkAkunAsetTetap))
+	depreciationStart := time.Time{}
+	if inv.TanggalDigunakan != nil && !inv.TanggalDigunakan.IsZero() {
+		depreciationStart = normalizeWorkbookDate(*inv.TanggalDigunakan)
+	} else if inv.TanggalPembelian != nil && !inv.TanggalPembelian.IsZero() {
+		depreciationStart = normalizeWorkbookDate(*inv.TanggalPembelian)
+	}
+
+	var tanggalTidakAktifTime time.Time
+	status := strings.TrimSpace(inv.Status)
+	if inv.TanggalStatusTidakAktif != nil && !inv.TanggalStatusTidakAktif.IsZero() {
+		tanggalTidakAktifTime = normalizeWorkbookDate(*inv.TanggalStatusTidakAktif)
+	} else if !strings.EqualFold(status, "aktif") {
+		tanggalTidakAktifTime = normalizeWorkbookDate(inv.UpdatedAt)
+	}
+
 	var bebanPeriodeBerjalan float64
-	var linkAkunBeban string
-
-	if inv.UnitUsahaID != nil && *inv.UnitUsahaID != 0 {
-		for _, tx := range transaksis {
-			if tx.UnitUsahaID != *inv.UnitUsahaID {
-				continue
-			}
-			if !transaksiMatchesAset(tx, inv) {
-				continue
-			}
-			mapping, ok := mappingBySlug[strings.TrimSpace(tx.MappingSlug)]
-			if !ok {
-				mapping, ok = mappingByName[normalizeJurnalLookupKey(tx.Deskripsi)]
-			}
-			if !ok {
-				continue
+	var akumulasiPenyusutanPeriode float64
+	if !depreciationStart.IsZero() && !reportEnd.Before(depreciationStart) {
+		if tanggalTidakAktifTime.IsZero() || tanggalTidakAktifTime.After(reportStart) {
+			cutoffEnd := reportEnd
+			if !tanggalTidakAktifTime.IsZero() {
+				saleCutoff := tanggalTidakAktifTime.AddDate(0, 0, -1)
+				if saleCutoff.Before(cutoffEnd) {
+					cutoffEnd = saleCutoff
+				}
 			}
 
-			if !mappingHasAsetTetapLink(mapping) {
-				continue
-			}
+			if !cutoffEnd.Before(depreciationStart) {
+				cumulativeMonths := workbookMonthSpanInclusive(depreciationStart, cutoffEnd)
+				if cumulativeMonths > umurBulan {
+					cumulativeMonths = umurBulan
+				}
+				akumulasiPenyusutanPeriode = math.Min(hargaPerolehan-float64(inv.NilaiResidu), bebanPerBulan*float64(cumulativeMonths))
 
-			bebanPeriodeBerjalan += tx.Nominal
-			if linkAkunBeban == "" {
-				linkAkunBeban = strings.TrimSpace(mapping.AkunDebet)
+				periodStartCutoff := reportStart.AddDate(0, 0, -1)
+				periodMonths := cumulativeMonths
+				if !periodStartCutoff.Before(depreciationStart) {
+					periodMonths -= workbookMonthSpanInclusive(depreciationStart, periodStartCutoff)
+				}
+				if periodMonths < 0 {
+					periodMonths = 0
+				}
+				if periodMonths > umurBulan {
+					periodMonths = umurBulan
+				}
+				bebanPeriodeBerjalan = bebanPerBulan * float64(periodMonths)
 			}
-			_ = akunAkumKey
-			_ = akunAsetKey
 		}
 	}
 
-	akumulasiTotal := float64(inv.AkumulasiPenyusutanAwal) + bebanPeriodeBerjalan
+	akumulasiTotal := float64(inv.AkumulasiPenyusutanAwal) + akumulasiPenyusutanPeriode
 	nilaiBuku := hargaPerolehan - akumulasiTotal
+	if nilaiBuku < float64(inv.NilaiResidu) {
+		nilaiBuku = float64(inv.NilaiResidu)
+	}
+	if !tanggalTidakAktifTime.IsZero() && !tanggalTidakAktifTime.After(reportEnd) {
+		nilaiBuku = 0
+	}
 
 	tanggalBeli := "-"
 	if inv.TanggalPembelian != nil {
@@ -1482,11 +1565,12 @@ func buildKartuAsetTetapGroupForInventaris(inv models.Inventaris, transaksis []m
 		tanggalDigunakan = inv.TanggalDigunakan.Format("2006-01-02")
 	}
 	tanggalTidakAktif := "-"
-	status := strings.TrimSpace(inv.Status)
-	if status != "" && !strings.EqualFold(status, "aktif") && inv.TanggalDigunakan != nil {
-		// Gunakan UpdatedAt sebagai proxy jika tidak ada field tanggal tidak aktif
-		tanggalTidakAktif = inv.UpdatedAt.Format("2006-01-02")
+	if !tanggalTidakAktifTime.IsZero() {
+		// Tampilkan tanggal nonaktif langsung dari master inventaris bila tersedia.
+		tanggalTidakAktif = tanggalTidakAktifTime.Format("2006-01-02")
 	}
+
+	linkAkunBeban := "5-2700 Beban Penyusutan"
 
 	group := KartuAsetTetapGroup{
 		ProfileBUMDesName:    profileName,

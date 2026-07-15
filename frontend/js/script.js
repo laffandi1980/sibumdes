@@ -4705,11 +4705,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     let csvRows = [];
-                    csvRows.push(["Kode Aset", "Nama Aset", "Merk Aset", "Kategori Aset", "Harga Perolehan", "Tanggal Beli (YYYY-MM-DD)", "Umur Ekonomis", "Nilai Residu", "Saldo Awal Per 1 Januari 2026", "Link Akun Aset Tetap", "Akumulasi Penyusutan Per 1 Januari 2026", "Link Akun Akumulasi Penyusutan", "Status", "Kartu Aset Tetap (true/false)", "Unit Usaha ID", "", "REFERENSI ID UNIT", "NAMA UNIT USAHA", "PROFILE BUMDES"].join(";"));
+                    csvRows.push(["Kode Aset", "Nama Aset", "Merk Aset", "Kategori Aset", "Harga Perolehan", "Tanggal Beli (YYYY-MM-DD)", "Umur Ekonomis", "Nilai Residu", "Saldo Awal Per 1 Januari 2026", "Link Akun Aset Tetap", "Akumulasi Penyusutan Per 1 Januari 2026", "Link Akun Akumulasi Penyusutan", "Status", "Tanggal Digunakan (YYYY-MM-DD)", "Tanggal Status Tidak Aktif (YYYY-MM-DD)", "Kartu Aset Tetap (true/false)", "Unit Usaha ID", "", "REFERENSI ID UNIT", "NAMA UNIT USAHA", "PROFILE BUMDES"].join(";"));
 
                     const templateData = [
-                        ["", "Kandang Ayam Petelur", "Bangunan PL", "Bangunan", "54000000", "2025-01-25", "20", "0", "54000000", "1-2020 Bangunan", "2475000", "1-2091 Akumulasi Penyusutan Bangunan", "Aktif", "true", "1"],
-                        ["", "Mesin Pakan Otomatis", "FeedPro X2", "Mesin", "17000000", "2025-01-05", "8", "0", "17000000", "1-2040 Peralatan dan Mesin", "1947917", "1-2093 Akumulasi Penyusutan Peralatan dan Mesin", "Aktif", "true", "2"]
+                        ["", "Kandang Ayam Petelur", "Bangunan PL", "Bangunan", "54000000", "2025-01-25", "20", "0", "54000000", "1-2020 Bangunan", "2475000", "1-2091 Akumulasi Penyusutan Bangunan", "Aktif", "2025-02-01", "", "true", "1"],
+                        ["", "Mesin Pakan Otomatis", "FeedPro X2", "Mesin", "17000000", "2025-01-05", "8", "0", "17000000", "1-2040 Peralatan dan Mesin", "1947917", "1-2093 Akumulasi Penyusutan Peralatan dan Mesin", "Aktif", "2025-01-15", "", "true", "2"]
                     ];
 
                     const maxRows = Math.max(templateData.length, units.length);
@@ -4719,7 +4719,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (i < templateData.length) {
                             row.push(...templateData[i]);
                         } else {
-                            row.push("", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+                            row.push("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
                         }
 
                         row.push("");
@@ -10385,7 +10385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 item && item.merk_aset,
                 item && item.kategori_aset,
                 formatInventarisCurrency(item && item.harga_beli),
-                toInputDate(item && item.tanggal_pembelian),
+                formatJurnalWorkbookDate(item && item.tanggal_pembelian),
                 item && item.umur_ekonomis,
                 formatInventarisCurrency(item && item.nilai_residu),
                 formatInventarisCurrency(item && item.saldo_awal),
@@ -10394,6 +10394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 item && item.link_akun_akumulasi_penyusutan,
                 formatInventarisCurrency(Math.max((Number(item && item.saldo_awal) || 0) - (Number(item && item.akumulasi_penyusutan_awal) || 0), 0)),
                 status,
+                formatJurnalWorkbookDate(item && item.tanggal_digunakan),
+                formatJurnalWorkbookDate(item && item.tanggal_status_tidak_aktif),
                 kartuAsetTetap,
             ].map((value) => String(value || '').toLowerCase()).join(' ');
 
@@ -10447,6 +10449,256 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(container) container.innerHTML = `<div style="color:var(--danger); text-align:center;">Gagal memuat data inventaris.</div>`;
             });
     }
+
+    function mergeInventarisTableItem(updatedItem) {
+        if (!updatedItem || !updatedItem.slug) return;
+        const inventarisTableState = getInventarisTableState();
+        const currentItems = Array.isArray(inventarisTableState.items) ? inventarisTableState.items.slice() : [];
+        const targetSlug = String(updatedItem.slug || '').trim();
+        const foundIndex = currentItems.findIndex((item) => String(item && item.slug || '').trim() === targetSlug);
+
+        if (foundIndex >= 0) {
+            currentItems[foundIndex] = updatedItem;
+        } else {
+            currentItems.unshift(updatedItem);
+        }
+
+        inventarisTableState.items = currentItems;
+        renderInventarisTable();
+    }
+
+    function buildInventarisKategoriOptions(selectedValue) {
+        const normalizedSelected = String(selectedValue || '').trim();
+        const options = ['', 'Tanah', 'Bangunan', 'Kendaraan', 'Peralatan', 'Mesin', 'Inventaris Kantor', 'Lainnya'];
+        return options.map((option) => {
+            const label = option || '-- Pilih Kategori --';
+            const selected = option === normalizedSelected ? 'selected' : '';
+            return `<option value="${escapeHTML(option)}" ${selected}>${escapeHTML(label)}</option>`;
+        }).join('');
+    }
+
+    function openEditInventarisModal(slug) {
+        const targetSlug = String(slug || '').trim();
+        if (!targetSlug) return;
+
+        const existing = document.getElementById('edit-inventaris-modal');
+        if (existing) existing.remove();
+
+        fetch('/api/inventaris?slug=' + encodeURIComponent(targetSlug))
+            .then((res) => {
+                if (!res.ok) throw new Error('Gagal memuat detail inventaris');
+                return res.json();
+            })
+            .then((inv) => {
+                if (!inv || !inv.slug) {
+                    throw new Error('Data inventaris tidak ditemukan');
+                }
+
+                const unitName = inv.unit_usaha && inv.unit_usaha.NamaUnitUsaha ? inv.unit_usaha.NamaUnitUsaha : '-';
+                const checkedAttr = inv.kartu_aset_tetap ? 'checked' : '';
+
+                const modal = document.createElement('div');
+                modal.id = 'edit-inventaris-modal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'flex';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width:960px; width:min(960px, calc(100vw - 32px)); text-align:left; padding:0; overflow:hidden; border:1px solid rgba(148,163,184,0.18); box-shadow:0 28px 80px rgba(15,23,42,0.28);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); background:#f8fafc;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">Edit Data Inventaris</h3>
+                                <p style="margin:4px 0 0; color:var(--text-secondary); font-size:0.85rem;">Klik Simpan untuk langsung memperbarui tabel.</p>
+                            </div>
+                            <button id="edit-inventaris-close" type="button" style="border:none; background:none; font-size:1.4rem; line-height:1; cursor:pointer; color:var(--text-secondary);">&times;</button>
+                        </div>
+                        <form id="edit-inventaris-form" style="padding:20px;">
+                            <input type="hidden" name="slug" value="${escapeHTML(inv.slug || '')}">
+                            <input type="hidden" name="unit_usaha_id" value="${escapeHTML(String(inv.unit_usaha_id || ''))}">
+                            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px 14px;">
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Kode Aset</label>
+                                    <input id="edit-inv-kode-aset" type="text" name="kode_aset" value="${escapeHTML(inv.kode_aset || '')}" readonly style="width:100%; background:#f3f4f6; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Unit Usaha</label>
+                                    <input type="text" value="${escapeHTML(unitName)}" readonly style="width:100%; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:8px 10px; color:var(--text-secondary);">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Nama Aset</label>
+                                    <input id="edit-inv-nama-aset" type="text" name="nama_aset" value="${escapeHTML(inv.nama_aset || '')}" required style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Merk Aset</label>
+                                    <input id="edit-inv-merk-aset" type="text" name="merk_aset" value="${escapeHTML(inv.merk_aset || '')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Kategori Aset</label>
+                                    <select id="edit-inv-kategori" name="kategori_aset" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">${buildInventarisKategoriOptions(inv.kategori_aset)}</select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Status</label>
+                                    <select id="edit-inv-status" name="status" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                        <option value="Aktif" ${normalizeInventarisStatus(inv.status) === 'Aktif' ? 'selected' : ''}>Aktif</option>
+                                        <option value="Dijual" ${normalizeInventarisStatus(inv.status) === 'Dijual' ? 'selected' : ''}>Dijual</option>
+                                        <option value="Dihapus" ${normalizeInventarisStatus(inv.status) === 'Dihapus' ? 'selected' : ''}>Dihapus</option>
+                                        <option value="Tidak Aktif (Dihentikan)" ${normalizeInventarisStatus(inv.status) === 'Tidak Aktif (Dihentikan)' ? 'selected' : ''}>Tidak Aktif (Dihentikan)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Harga Perolehan (Rp)</label>
+                                    <input id="edit-inv-harga" type="text" name="harga_beli" value="${escapeHTML(formatInventarisCurrency(inv.harga_beli || 0))}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Tanggal Beli</label>
+                                    <input id="edit-inv-tanggal-beli" type="date" name="tanggal_pembelian" value="${escapeHTML(toInputDate(inv.tanggal_pembelian) || '')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Umur Ekonomis (tahun)</label>
+                                    <input id="edit-inv-umur" type="number" name="umur_ekonomis" min="0" value="${escapeHTML(String(inv.umur_ekonomis || 0))}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Nilai Residu (Rp)</label>
+                                    <input id="edit-inv-residu" type="text" name="nilai_residu" value="${escapeHTML(formatInventarisCurrency(inv.nilai_residu || 0))}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Saldo Awal (Rp)</label>
+                                    <input id="edit-inv-saldo-awal" type="text" name="saldo_awal" value="${escapeHTML(formatInventarisCurrency(inv.saldo_awal || 0))}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Akumulasi Penyusutan Awal (Rp)</label>
+                                    <input id="edit-inv-akumulasi-awal" type="text" name="akumulasi_penyusutan_awal" value="${escapeHTML(formatInventarisCurrency(inv.akumulasi_penyusutan_awal || 0))}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Link Akun Aset Tetap</label>
+                                    <input id="edit-inv-link-aset" type="text" name="link_akun_aset_tetap" value="${escapeHTML(inv.link_akun_aset_tetap || '-')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Link Akun Akumulasi Penyusutan</label>
+                                    <input id="edit-inv-link-akumulasi" type="text" name="link_akun_akumulasi_penyusutan" value="${escapeHTML(inv.link_akun_akumulasi_penyusutan || '-')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Tanggal Digunakan</label>
+                                    <input id="edit-inv-tanggal-digunakan" type="date" name="tanggal_digunakan" value="${escapeHTML(toInputDate(inv.tanggal_digunakan) || '')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:0.82rem; font-weight:600; margin-bottom:6px;">Tanggal Status Tidak Aktif</label>
+                                    <input id="edit-inv-tanggal-nonaktif" type="date" name="tanggal_status_tidak_aktif" value="${escapeHTML(toInputDate(inv.tanggal_status_tidak_aktif) || '')}" style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px;">
+                                </div>
+                            </div>
+                            <div style="margin-top:14px; display:flex; align-items:center; gap:8px;">
+                                <input id="edit-inv-kartu" type="checkbox" name="kartu_aset_tetap" value="1" ${checkedAttr} style="width:18px; height:18px; margin:0;">
+                                <label for="edit-inv-kartu" style="margin:0; font-size:0.9rem; color:var(--text-primary);">Kartu Aset Tetap</label>
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                                <button id="edit-inv-cancel" type="button" style="padding:10px 16px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text-primary); cursor:pointer;">Batal</button>
+                                <button id="edit-inv-save" type="submit" style="padding:10px 16px; border:none; border-radius:8px; background:var(--primary); color:#fff; cursor:pointer; font-weight:600;">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                document.body.style.overflow = 'hidden';
+
+                const closeModal = () => {
+                    modal.remove();
+                    document.body.style.overflow = '';
+                };
+
+                const form = modal.querySelector('#edit-inventaris-form');
+                const saveButton = modal.querySelector('#edit-inv-save');
+
+                modal.querySelector('#edit-inventaris-close')?.addEventListener('click', closeModal);
+                modal.querySelector('#edit-inv-cancel')?.addEventListener('click', closeModal);
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) closeModal();
+                });
+
+                const currencyInputIds = ['edit-inv-harga', 'edit-inv-residu', 'edit-inv-saldo-awal', 'edit-inv-akumulasi-awal'];
+                currencyInputIds.forEach((inputId) => {
+                    const inputEl = modal.querySelector('#' + inputId);
+                    if (!inputEl) return;
+
+                    inputEl.addEventListener('focus', () => {
+                        const numericValue = parsePelangganNumber(inputEl.value);
+                        inputEl.value = numericValue ? String(numericValue) : '';
+                    });
+                    inputEl.addEventListener('blur', () => {
+                        const numericValue = parsePelangganNumber(inputEl.value);
+                        inputEl.value = numericValue ? formatInventarisCurrency(numericValue) : '';
+                    });
+                });
+
+                form?.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    if (!form || !saveButton) return;
+
+                    const params = new URLSearchParams();
+                    params.set('slug', String(form.querySelector('[name="slug"]')?.value || '').trim());
+                    params.set('unit_usaha_id', String(form.querySelector('[name="unit_usaha_id"]')?.value || '').trim());
+                    params.set('kode_aset', String(form.querySelector('[name="kode_aset"]')?.value || '').trim());
+                    params.set('nama_aset', String(form.querySelector('[name="nama_aset"]')?.value || '').trim());
+                    params.set('merk_aset', String(form.querySelector('[name="merk_aset"]')?.value || '').trim());
+                    params.set('kategori_aset', String(form.querySelector('[name="kategori_aset"]')?.value || '').trim());
+                    params.set('harga_beli', String(parsePelangganNumber(form.querySelector('[name="harga_beli"]')?.value || '0')));
+                    params.set('tanggal_pembelian', String(form.querySelector('[name="tanggal_pembelian"]')?.value || '').trim());
+                    params.set('umur_ekonomis', String(form.querySelector('[name="umur_ekonomis"]')?.value || '0').trim());
+                    params.set('nilai_residu', String(parsePelangganNumber(form.querySelector('[name="nilai_residu"]')?.value || '0')));
+                    params.set('saldo_awal', String(parsePelangganNumber(form.querySelector('[name="saldo_awal"]')?.value || '0')));
+                    params.set('akumulasi_penyusutan_awal', String(parsePelangganNumber(form.querySelector('[name="akumulasi_penyusutan_awal"]')?.value || '0')));
+                    params.set('link_akun_aset_tetap', String(form.querySelector('[name="link_akun_aset_tetap"]')?.value || '-').trim() || '-');
+                    params.set('link_akun_akumulasi_penyusutan', String(form.querySelector('[name="link_akun_akumulasi_penyusutan"]')?.value || '-').trim() || '-');
+                    params.set('status', String(form.querySelector('[name="status"]')?.value || 'Aktif').trim() || 'Aktif');
+                    params.set('tanggal_digunakan', String(form.querySelector('[name="tanggal_digunakan"]')?.value || '').trim());
+                    params.set('tanggal_status_tidak_aktif', String(form.querySelector('[name="tanggal_status_tidak_aktif"]')?.value || '').trim());
+                    params.set('kartu_aset_tetap', form.querySelector('[name="kartu_aset_tetap"]')?.checked ? '1' : '0');
+
+                    const originalButtonLabel = saveButton.innerHTML;
+                    saveButton.disabled = true;
+                    saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+
+                    fetch('/api/inventaris', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: params.toString()
+                    })
+                        .then((res) => {
+                            if (!res.ok) {
+                                return res.text().then((message) => {
+                                    throw new Error(message || 'Gagal menyimpan data inventaris');
+                                });
+                            }
+                            return fetch('/api/inventaris?slug=' + encodeURIComponent(targetSlug));
+                        })
+                        .then((res) => {
+                            if (!res.ok) {
+                                throw new Error('Gagal memuat data inventaris terbaru');
+                            }
+                            return res.json();
+                        })
+                        .then((updatedItem) => {
+                            mergeInventarisTableItem(updatedItem);
+                            showToast('Data Inventaris berhasil diperbarui! ✅');
+                            closeModal();
+                        })
+                        .catch((error) => {
+                            console.error('Failed to update inventaris via modal', error);
+                            showToast('Gagal menyimpan inventaris: ' + error.message, true);
+                        })
+                        .finally(() => {
+                            saveButton.disabled = false;
+                            saveButton.innerHTML = originalButtonLabel;
+                        });
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+                showToast('Gagal membuka modal edit inventaris.', true);
+            });
+    }
+
+    window.openInventarisEditModal = openEditInventarisModal;
 
     function loadInventarisProfileBumdesDropdown(selectedProfileId = null) {
         const selectEl = document.getElementById('inventaris_profile_bumdes_id');
@@ -10518,14 +10770,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             tableRows += `
-                <tr style="border-bottom:1px solid #d9dfeb;">
+                <tr style="border-bottom:1px solid #d9dfeb; cursor:pointer;" onclick="window.openInventarisEditModal('${inv.slug}')">
                     <td style="padding:10px 12px; white-space:nowrap; font-weight:600; color:#1f2937;">${inv.kode_aset || '-'}</td>
                     <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${bumdesBadge}<span class="badge" style="background:var(--bg-secondary); color:var(--text-secondary);">${escapeHTML(unitName)}</span></td>
                     <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${inv.nama_aset || '-'}</td>
                     <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${inv.merk_aset || '-'}</td>
                     <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${inv.kategori_aset || '-'}</td>
                     <td style="padding:10px 12px; text-align:right; white-space:nowrap; color:#374151;">${formatInventarisCurrency(inv.harga_beli)}</td>
-                    <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${toInputDate(inv.tanggal_pembelian) || '-'}</td>
+                    <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${formatJurnalWorkbookDate(inv.tanggal_pembelian)}</td>
                     <td style="padding:10px 12px; text-align:center; white-space:nowrap; color:#374151;">${inv.umur_ekonomis || 0}</td>
                     <td style="padding:10px 12px; text-align:right; white-space:nowrap; color:#374151;">${formatInventarisCurrency(inv.nilai_residu)}</td>
                     <td style="padding:10px 12px; text-align:right; white-space:nowrap; color:#374151;">${formatInventarisCurrency(inv.saldo_awal)}</td>
@@ -10534,10 +10786,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${inv.link_akun_akumulasi_penyusutan || '-'}</td>
                     <td style="padding:10px 12px; text-align:right; white-space:nowrap; color:#374151;">${formatInventarisCurrency(nilaiBuku)}</td>
                     <td style="padding:10px 12px; text-align:center; white-space:nowrap; color:#374151;">${status}</td>
+                    <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${formatJurnalWorkbookDate(inv.tanggal_digunakan)}</td>
+                    <td style="padding:10px 12px; white-space:nowrap; color:#374151;">${formatJurnalWorkbookDate(inv.tanggal_status_tidak_aktif)}</td>
                     <td style="padding:10px 12px; text-align:center; white-space:nowrap; color:#374151;">${kartuAsetTetap}</td>
                     <td style="padding:10px 12px; text-align:center; white-space:nowrap;">
-                        <button class="action-btn edit" title="Edit Inventaris" onclick="window.editInventarisAction('${inv.slug}')"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete" title="Hapus Inventaris" onclick="window.deleteInventarisAction('${inv.slug}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="action-btn edit" title="Edit Inventaris" onclick="event.stopPropagation(); window.editInventarisAction('${inv.slug}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="action-btn delete" title="Hapus Inventaris" onclick="event.stopPropagation(); window.deleteInventarisAction('${inv.slug}')"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `;
@@ -10545,7 +10799,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = `
             <div style="overflow-x:auto; border:1px solid #cfd6e4; border-radius:8px; background:#fff; box-shadow:0 10px 24px rgba(15, 23, 42, 0.06);">
-                <table class="data-table" style="width:100%; border-collapse:separate; border-spacing:0; text-align:left; min-width:2360px; font-size:13px; color:#1f2937;">
+                <table class="data-table" style="width:100%; border-collapse:separate; border-spacing:0; text-align:left; min-width:2620px; font-size:13px; color:#1f2937;">
                     <thead>
                         <tr style="background:#f4f6f8; border-bottom:1px solid #cfd6e4;">
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; border-bottom:1px solid #cfd6e4;">Kode Aset</th>
@@ -10563,6 +10817,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; border-bottom:1px solid #cfd6e4;">Link Akun Akumulasi Penyusutan</th>
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; text-align:right; border-bottom:1px solid #cfd6e4;">Nilai Buku Per 1 Januari 2026</th>
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; text-align:center; border-bottom:1px solid #cfd6e4;">Status</th>
+                            <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; border-bottom:1px solid #cfd6e4;">Tanggal Digunakan</th>
+                            <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; border-bottom:1px solid #cfd6e4;">Tanggal Status Tidak Aktif</th>
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; text-align:center; border-bottom:1px solid #cfd6e4;">Kartu Aset Tetap</th>
                             <th style="padding:10px 12px; font-weight:700; color:#111827; white-space:nowrap; text-align:center; border-bottom:1px solid #cfd6e4;">Aksi</th>
                         </tr>
@@ -10576,6 +10832,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.editInventarisAction = function(slug) {
+        if (window.location.pathname === '/inventaris') {
+            openEditInventarisModal(slug);
+            return;
+        }
         navigateTo('/inventaris/edit/' + slug);
     };
 
@@ -10962,6 +11222,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const statusEl = document.getElementById('inv_status');
                 if(statusEl) statusEl.value = normalizeInventarisStatus(data.status || (data.aktif ? 'Aktif' : 'Tidak Aktif'));
+
+                const tglDigunakanEl = document.getElementById('inv_tanggal_digunakan');
+                if(tglDigunakanEl) tglDigunakanEl.value = toInputDate(data.tanggal_digunakan);
+
+                const tglStatusTidakAktifEl = document.getElementById('inv_tanggal_status_tidak_aktif');
+                if(tglStatusTidakAktifEl) tglStatusTidakAktifEl.value = toInputDate(data.tanggal_status_tidak_aktif);
 
                 const kartuAsetEl = document.getElementById('inv_kartu_aset_tetap');
                 if(kartuAsetEl) kartuAsetEl.checked = Boolean(data.kartu_aset_tetap);

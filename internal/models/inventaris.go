@@ -24,6 +24,7 @@ type Inventaris struct {
 	BiayaInstalasi              float64       `gorm:"type:decimal(15,2);default:0" json:"biaya_instalasi"`
 	TanggalPembelian            *time.Time    `gorm:"type:date" json:"tanggal_pembelian"`
 	TanggalDigunakan            *time.Time    `gorm:"type:date" json:"tanggal_digunakan"`
+	TanggalStatusTidakAktif     *time.Time    `gorm:"type:date" json:"tanggal_status_tidak_aktif"`
 	KategoriAset                string        `gorm:"type:varchar(100)" json:"kategori_aset"`
 	UmurEkonomis                int           `gorm:"default:0" json:"umur_ekonomis"`
 	Aktif                       bool          `gorm:"default:true" json:"aktif"`
