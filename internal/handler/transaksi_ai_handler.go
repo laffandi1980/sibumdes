@@ -215,8 +215,11 @@ Instruksi:
 		},
 		"generationConfig": map[string]interface{}{
 			"temperature":      0.1,
-			"maxOutputTokens":  512,
+			"maxOutputTokens":  1024,
 			"responseMimeType": "application/json",
+			"thinkingConfig": map[string]interface{}{
+				"thinkingBudget": 0,
+			},
 		},
 	}
 	reqBody, _ := json.Marshal(payload)
